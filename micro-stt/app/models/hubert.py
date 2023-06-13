@@ -3,7 +3,7 @@
 import torch
 from transformers import AutoProcessor, HubertForCTC
 from app.models import IModel
-from app.config import SAMPLE_RATE
+from app.config import TARGET_SAMPLE_RATE
 
 
 class HuBERT(IModel):
@@ -38,7 +38,7 @@ class HuBERT(IModel):
         Reference:
         https://huggingface.co/docs/transformers/model_doc/hubert
         """
-        input = self.processor(in_tensor, sampling_rate=SAMPLE_RATE, return_tensors="pt")
+        input = self.processor(in_tensor, sampling_rate=TARGET_SAMPLE_RATE, return_tensors="pt")
         with torch.no_grad():
             logits = self.model(**input).logits
             predicted_ids = torch.argmax(logits, dim=-1)

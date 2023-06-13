@@ -13,7 +13,8 @@ import sounddevice as sd
 from typing import Callable
 from queue import Queue, Empty
 from time import sleep
-from app.config import BLOCK_SIZE, CHANNELS, NP_BUFFER, SAMPLE_RATE, MODEL, PASSTHROUGH, MIN_TRANSCRPTION_INPUT_DURATION_S
+from torchaudio.functional import resample
+from app.config import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE, MODEL, PASSTHROUGH, MIN_TRANSCRPTION_INPUT_DURATION_S
 from app.models import IModel
 from app.models.silero import Silero
 from app.models.hubert import HuBERT
@@ -70,8 +71,15 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
             # Prepend unprocessed data from previous run
             full_buffer = np.append(unprocessed, full_buffer)
             # Wait until enough data has been gathered
-            if full_buffer.shape[0] > SAMPLE_RATE * MIN_TRANSCRPTION_INPUT_DURATION_S:
+            if full_buffer.shape[0] > DEVICE_SAMPLE_RATE * MIN_TRANSCRPTION_INPUT_DURATION_S:
                 in_tensor = torch.from_numpy(full_buffer)
+                # Resample audio to match valid sampling rate for model
+                in_tensor = resample(in_tensor, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE)
+                # Normalize input data between -1 and 1
+                # References:
+                # - https://pytorch.org/hub/snakers4_silero-models_stt
+                # - https://pytorch.org/docs/stable/generated/torch.nn.functional.normalize.html
+                in_tensor = torch.nn.functional.normalize(in_tensor, p=2, dim=0)
                 # TODO: This is where VAD could be performed
                 # Transcribe audio
                 transcription = model.transcribe_live(in_tensor)
@@ -81,7 +89,7 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
             # Otherwise set current data as unprocessed
             else:
                 unprocessed = full_buffer
-            sleep(BLOCK_SIZE / SAMPLE_RATE)
+            sleep(BLOCK_SIZE / DEVICE_SAMPLE_RATE)
         except Empty:
             continue
     print('Transcription worker received stop event and exited')
@@ -104,7 +112,7 @@ async def main() -> None:
     # Create audio input stream
     # Add input audio buffer to transcription queue using on-data callback
     input_stream = sd.Stream(
-        samplerate=SAMPLE_RATE,
+        samplerate=DEVICE_SAMPLE_RATE,
         blocksize=BLOCK_SIZE,
         channels=CHANNELS,
         dtype='float32',
