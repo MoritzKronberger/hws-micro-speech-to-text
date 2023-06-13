@@ -12,7 +12,7 @@ import sounddevice as sd
 from typing import Callable
 from queue import Queue, Empty
 from torchaudio.functional import resample
-from app.config import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE, MODEL, PASSTHROUGH, MIN_TRANSCRPTION_INPUT_DURATION_S
+from app.config import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE, MODEL, PASSTHROUGH
 from app.models import IModel
 from app.models.silero import Silero
 from app.models.hubert import HuBERT
