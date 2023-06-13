@@ -8,11 +8,9 @@ Why separate the callback and transcription worker?
 import asyncio
 import threading
 import torch
-import numpy as np
 import sounddevice as sd
 from typing import Callable
 from queue import Queue, Empty
-from time import sleep
 from torchaudio.functional import resample
 from app.config import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE, MODEL, PASSTHROUGH, MIN_TRANSCRPTION_INPUT_DURATION_S
 from app.models import IModel
@@ -54,42 +52,26 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
     # Until stop event is set
     # Reference: https://superfastpython.com/stop-daemon-thread
     stop = asyncio.Event()
-    # Keep data that could not be processed
-    unprocessed: NP_BUFFER = np.empty(0, dtype=np.float32)
+
     while not stop.is_set():
         try:
-            # Get entire queue data
-            buffer_list: list[NP_BUFFER] = []
-            while not buffer_queue.empty():
-                buffer_data: NP_BUFFER = buffer_queue.get()
-                buffer_list.append(buffer_data)
-                buffer_queue.task_done()
-            # Convert queue data to numpy array
-            full_buffer = np.array(buffer_list)
+            # Get queue data
+            buffer_data: NP_BUFFER = buffer_queue.get()
             # And flatten dimensions
-            full_buffer = full_buffer.flatten()
-            # Prepend unprocessed data from previous run
-            full_buffer = np.append(unprocessed, full_buffer)
-            # Wait until enough data has been gathered
-            if full_buffer.shape[0] > DEVICE_SAMPLE_RATE * MIN_TRANSCRPTION_INPUT_DURATION_S:
-                in_tensor = torch.from_numpy(full_buffer)
-                # Resample audio to match valid sampling rate for model
+            full_buffer = buffer_data.flatten()
+            in_tensor = torch.from_numpy(full_buffer)
+            # Resample audio to match valid sampling rate for model
+            if DEVICE_SAMPLE_RATE != TARGET_SAMPLE_RATE:
                 in_tensor = resample(in_tensor, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE)
-                # Normalize input data between -1 and 1
-                # References:
-                # - https://pytorch.org/hub/snakers4_silero-models_stt
-                # - https://pytorch.org/docs/stable/generated/torch.nn.functional.normalize.html
-                in_tensor = torch.nn.functional.normalize(in_tensor, p=2, dim=0)
-                # TODO: This is where VAD could be performed
-                # Transcribe audio
-                transcription = model.transcribe_live(in_tensor)
-                print(transcription)
-                # Reset unprocessed data
-                unprocessed = np.empty(0, dtype=np.float32)
-            # Otherwise set current data as unprocessed
-            else:
-                unprocessed = full_buffer
-            sleep(BLOCK_SIZE / DEVICE_SAMPLE_RATE)
+            # Normalize input data between -1 and 1
+            # References:
+            # - https://pytorch.org/hub/snakers4_silero-models_stt
+            # - https://pytorch.org/docs/stable/generated/torch.nn.functional.normalize.html
+            in_tensor = torch.nn.functional.normalize(in_tensor, p=2, dim=0)
+            # TODO: This is where VAD could be performed
+            # Transcribe audio
+            transcription = model.transcribe_live(in_tensor)
+            print(transcription)
         except Empty:
             continue
     print('Transcription worker received stop event and exited')
