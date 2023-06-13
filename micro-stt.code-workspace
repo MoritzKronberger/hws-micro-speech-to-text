@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": "benchmark"
+    },
+    {
+      "path": "micro-stt"
+    },
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "extensions": {
+    "recommendations": ["ms-python.python"]
+  }
+}
