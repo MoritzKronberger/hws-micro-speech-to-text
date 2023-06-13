@@ -24,6 +24,16 @@ Install dependencies:
 python -m pip install -r requirements.txt
 ```
 
+## Create .env file
+
+Create the .env scaffold using
+
+```bash
+bash init_dotenv.sh
+```
+
+and enter your configuration.
+
 ## Run Application
 
 Start live transcription:
