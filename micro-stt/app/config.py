@@ -21,7 +21,6 @@ DEVICE_SAMPLE_RATE = int(__from_dotenv('DEVICE_SAMPLE_RATE'))
 TARGET_SAMPLE_RATE = int(__from_dotenv('TARGET_SAMPLE_RATE'))
 BLOCK_SIZE = int(__from_dotenv('BLOCK_SIZE'))
 CHANNELS = int(__from_dotenv('CHANNELS'))
-MIN_TRANSCRPTION_INPUT_DURATION_S = int(__from_dotenv('MIN_TRANSCRPTION_INPUT_DURATION_S'))
 LANGUAGE = __from_dotenv('LANGUAGE')
 models = Literal['silero', 'hubert']
 model = __from_dotenv('MODEL')
