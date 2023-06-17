@@ -29,13 +29,13 @@ class Silero(IModel):
             device=self.device
         )
 
-    def transcribe_live(self, in_tensor: torch.Tensor) -> str:
+    def transcribe_tensor(self, waveform_tensor: torch.Tensor, sample_rate: int) -> str:
         """Transcribe live data.
         
         Reference:
         https://pytorch.org/hub/snakers4_silero-models_stt
         """
-        in_tensor_batches = [in_tensor]
+        in_tensor_batches = [waveform_tensor]
         prepare_model_input = self.utils[-1]
         input = prepare_model_input(in_tensor_batches, self.device)
         output = self.model(input)

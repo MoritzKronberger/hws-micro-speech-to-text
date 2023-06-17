@@ -21,13 +21,23 @@ def save_tensor_as_wav(input: torch.Tensor, sample_rate: int, filename: str, pat
     write_wav(f'{path}/{filename}.wav', sample_rate, input.numpy())
 
 
-def load_tensor_from_wav(filepath: str) -> tuple[torch.Tensor, int]:
+def load_tensor_from_wav(filepath: str, target_sample_rate: int | None) -> tuple[torch.Tensor, int]:
     """Load Torch tensor from wav file.
 
-    Reference:
-    https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data
+    Optionally resample audio.
+
+    References:
+    - https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data
+    - https://github.com/snakers4/silero-models/blob/master/src/silero/utils.py
     """
     tensor, sample_rate = torchaudio.load(filepath)
+    if target_sample_rate is not None and sample_rate != target_sample_rate:
+        resample = torchaudio.transforms.Resample(
+            orig_freq=sample_rate,
+            new_freq=target_sample_rate
+        )
+        tensor = resample(tensor)
+        sample_rate = target_sample_rate
     return (tensor[0], sample_rate)
 
 

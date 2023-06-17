@@ -3,7 +3,6 @@
 import torch
 from transformers import AutoProcessor, HubertForCTC
 from app.models import IModel
-from app.env import TARGET_SAMPLE_RATE
 
 
 class HuBERT(IModel):
@@ -32,13 +31,13 @@ class HuBERT(IModel):
         
         self.processor = AutoProcessor.from_pretrained("facebook/hubert-large-ls960-ft")
 
-    def transcribe_live(self, in_tensor: torch.Tensor) -> str:
+    def transcribe_tensor(self, waveform_tensor: torch.Tensor, sample_rate: int) -> str:
         """Transcribe live data.
         
         Reference:
         https://huggingface.co/docs/transformers/model_doc/hubert
         """
-        input = self.processor(in_tensor, sampling_rate=TARGET_SAMPLE_RATE, return_tensors="pt")
+        input = self.processor(waveform_tensor, sampling_rate=sample_rate, return_tensors="pt")
         with torch.no_grad():
             logits = self.model(**input).logits
             predicted_ids = torch.argmax(logits, dim=-1)
