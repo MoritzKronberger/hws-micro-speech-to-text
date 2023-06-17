@@ -1,4 +1,4 @@
-"""Micro Text-to-Speech Transcription."""
+"""Micro Text-to-Speech application."""
 
 import asyncio
 import sys

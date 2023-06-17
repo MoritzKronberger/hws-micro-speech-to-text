@@ -3,7 +3,7 @@
 import torch
 from transformers import AutoProcessor, HubertForCTC
 from app.models import IModel
-from app.config import TARGET_SAMPLE_RATE
+from app.env import TARGET_SAMPLE_RATE
 
 
 class HuBERT(IModel):
