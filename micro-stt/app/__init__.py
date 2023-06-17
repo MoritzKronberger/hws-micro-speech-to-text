@@ -3,11 +3,13 @@
 import inquirer
 from inspect import iscoroutinefunction
 from app import noise_floor_calibration
+from app import preprocessing_visualization
 from app import live_transcription
 from app.utils import print_hash_comment
 
 actions = {
     'Calibrate noise floor': noise_floor_calibration,
+    'Visualize preprocessing': preprocessing_visualization,
     'Start live transcription': live_transcription,
 }
 
