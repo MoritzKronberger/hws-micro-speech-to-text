@@ -16,8 +16,8 @@ models = {
 # Reference: https://en.wikipedia.org/wiki/Voice_frequency
 bandpass_options: bandpass_opts = {
     'low_cutoff_freq': 50,
-    'high_cutoff_freq': 300,
-    'Q': 0.85
+    'high_cutoff_freq': 3000,
+    'Q': 0.707
 }
 
 # Configure noise reduction
@@ -38,6 +38,6 @@ except Exception:
 # Configure audio preprocessing
 preprocessing_options: preprocessing_opts = {
     'bandpass': bandpass_options,
-    'noise_reduce': noise_reduction_options,
-    'scale':75
+    'noise_reduce': None,
+    'scale': 1
 }
