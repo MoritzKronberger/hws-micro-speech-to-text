@@ -108,4 +108,4 @@ def save_noise_floor(input: NP_BUFFER, sample_rate: int, temp_dir: str = 'tmp', 
 
 def load_noise_floor(temp_dir: str = 'tmp', filename: str = 'noise-floor') -> NP_BUFFER:
     """Load Numpy buffer of noise floor from disk."""
-    return np.load(f'{temp_dir}/{filename}')
+    return np.load(f'{temp_dir}/{filename}.npy')
