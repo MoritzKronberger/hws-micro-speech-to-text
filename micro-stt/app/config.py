@@ -3,7 +3,7 @@
 from app.models.silero import Silero
 from app.models.hubert import HuBERT
 from app.env import NOISE_FLOOR_DURATION_S
-from app.preprocessing import load_noise_floor, lowpass_opts, noise_reduce_opts, preprocessing_opts
+from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts, preprocessing_opts
 
 # Register available transcription models
 models = {
@@ -11,10 +11,13 @@ models = {
     'hubert': HuBERT,
 }
 
-# Configure lowpass filter
-lowpass_options: lowpass_opts = {
-    'cutoff_freq': 4000,
-    'Q': 0.707
+# Configure bandpass filter
+# Roughly use human vocal range:
+# Reference: https://en.wikipedia.org/wiki/Voice_frequency
+bandpass_options: bandpass_opts = {
+    'low_cutoff_freq': 50,
+    'high_cutoff_freq': 300,
+    'Q': 0.85
 }
 
 # Configure noise reduction
@@ -34,6 +37,6 @@ except Exception:
 
 # Configure audio preprocessing
 preprocessing_options: preprocessing_opts = {
-    'lowpass': lowpass_options,
+    'bandpass': bandpass_options,
     'noise_reduce': noise_reduction_options,
 }

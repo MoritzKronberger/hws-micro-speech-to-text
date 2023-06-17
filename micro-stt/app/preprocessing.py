@@ -6,20 +6,23 @@ import noisereduce as nr
 import matplotlib.pyplot as plt
 from typing import TypedDict, Literal
 from uuid import uuid4
-from torchaudio.functional import lowpass_biquad
+from torchaudio.functional import lowpass_biquad, highpass_biquad
+from torchaudio import sox_effects
 from scipy.io.wavfile import write as write_wav
 from matplotlib.figure import Figure
 from app.env import NP_BUFFER
 from app.utils import create_dir_if_not_exists
 
 
-class lowpass_opts(TypedDict):
-    """Options for PyTorch `LOWPASS_BIQUAD`.
+class bandpass_opts(TypedDict):
+    """Options for bandpass using PyTorch `LOWPASS_BIQUAD` and `HIGHPASS_BIQUAD`.
 
-    Reference:
-    https://pytorch.org/audio/main/generated/torchaudio.functional.lowpass_biquad.html
+    References:
+    - https://pytorch.org/audio/main/generated/torchaudio.functional.lowpass_biquad.html
+    - https://pytorch.org/audio/stable/generated/torchaudio.functional.highpass_biquad.html
     """
-    cutoff_freq: float
+    high_cutoff_freq: float
+    low_cutoff_freq: float
     Q: float
 
 
@@ -56,7 +59,7 @@ noise_reduce_opts = stationary_noise_reduce_opts | non_stationary_noise_reduce_o
 
 
 class preprocessing_opts(TypedDict):
-    lowpass: lowpass_opts | None
+    bandpass: bandpass_opts | None
     noise_reduce: noise_reduce_opts | None
 
 
@@ -64,24 +67,36 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
     """Preprocess waveform tensor.
 
     - Apply PyTorch `LOWPASS_BIQUAD`
+    - Apply PyTorch `HGHPASS_BIQUAD`
     - Apply noisereduce with `TorchGate`
 
     References:
     - https://pytorch.org/audio/main/generated/torchaudio.functional.lowpass_biquad.html
+    - https://pytorch.org/audio/main/generated/torchaudio.functional.highpass_biquad.html
     - https://github.com/timsainb/noisereduce#simplest-usage
     """
-    lowpass = opts['lowpass']
+    bandpass = opts['bandpass']
     noise_reduce = opts['noise_reduce']
     out = input
 
     # Apply lowpass filter:
     # Reference:
     # https://pytorch.org/audio/main/generated/torchaudio.functional.lowpass_biquad.html
-    if lowpass is not None:
+    if bandpass is not None:
+        Q = bandpass['Q']
+        # Cut off high frequencies using lowpass filter
         out = lowpass_biquad(
-            waveform=input,
+            waveform=out,
             sample_rate=sample_rate,
-            **lowpass
+            cutoff_freq=bandpass['high_cutoff_freq'],
+            Q=Q
+        )
+        # Cut off low frequencies using highpass filter
+        out = highpass_biquad(
+            waveform=out,
+            sample_rate=sample_rate,
+            cutoff_freq=bandpass['low_cutoff_freq'],
+            Q=Q
         )
 
     # Apply noise reduction:
@@ -139,7 +154,7 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
     Reference:
     https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.specgram.html
     """
-    lowpass = opts['lowpass']
+    bandpass = opts['bandpass']
     noise_reduce = opts['noise_reduce']
 
     # Create output directory
@@ -155,20 +170,31 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
 
     out = np_input
 
-    # Visualize lowpass filter
-    if lowpass is not None:
+    # Visualize bandpass filter
+    if bandpass is not None:
+        out_t = input
+        Q = bandpass['Q']
+        # Cut off high frequencies using lowpass filter
         out_t = lowpass_biquad(
-            waveform=input,
+            waveform=out_t,
             sample_rate=sample_rate,
-            **lowpass
+            cutoff_freq=bandpass['high_cutoff_freq'],
+            Q=Q
+        )
+        # Cut off low frequencies using highpass filter
+        out_t = highpass_biquad(
+            waveform=out_t,
+            sample_rate=sample_rate,
+            cutoff_freq=bandpass['low_cutoff_freq'],
+            Q=Q
         )
         out = out_t.numpy()
         lowpass_figure = __plot_audio(
             out,
             sample_rate,
-            f'Lowpass filter ({lowpass["cutoff_freq"]} Hz)'
+            f'Bandpass filter ({bandpass["low_cutoff_freq"]} Hz - {bandpass["high_cutoff_freq"]} Hz)'
         )
-        lowpass_figure.savefig(f'{job_dirname}/lowpass.svg')
+        lowpass_figure.savefig(f'{job_dirname}/bandpass.svg')
 
     # Visualize noise reduction (& lowpass)
     if noise_reduce is not None:
@@ -182,7 +208,7 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
             sample_rate,
             'Noise reduction '
             f'({"stationary" if noise_reduce["stationary"] else "non stationary"}) '
-            f'& Lowpass filter ({lowpass["cutoff_freq"]} Hz)' if lowpass is not None else ''
+            f'& Bandpass filter ({bandpass["low_cutoff_freq"]} Hz # {bandpass["high_cutoff_freq"]} Hz)' if bandpass is not None else ''
         )
         noise_reduce_figure.savefig(f'{job_dirname}/noise_reduction.svg')
 
