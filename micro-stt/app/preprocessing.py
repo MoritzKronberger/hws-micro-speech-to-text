@@ -58,6 +58,7 @@ noise_reduce_opts = stationary_noise_reduce_opts | non_stationary_noise_reduce_o
 class preprocessing_opts(TypedDict):
     bandpass: bandpass_opts | None
     noise_reduce: noise_reduce_opts | None
+    scale: float | None
 
 
 def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing_opts) -> torch.Tensor:
@@ -66,6 +67,7 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
     - Apply PyTorch `LOWPASS_BIQUAD`
     - Apply PyTorch `HGHPASS_BIQUAD`
     - Apply noisereduce with `TorchGate`
+    - Scale waveform by factor
 
     References:
     - https://pytorch.org/audio/main/generated/torchaudio.functional.lowpass_biquad.html
@@ -74,6 +76,7 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
     """
     bandpass = opts['bandpass']
     noise_reduce = opts['noise_reduce']
+    scale = opts['scale']
     out = input
 
     # Apply lowpass filter:
@@ -107,6 +110,10 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
             **noise_reduce
         )
         out = torch.from_numpy(out_np)
+
+    # Scale waveform
+    if scale is not None:
+        out = out * scale
 
     return out
 
@@ -153,6 +160,7 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
     """
     bandpass = opts['bandpass']
     noise_reduce = opts['noise_reduce']
+    scale = opts['scale']
 
     # Create output directory
     viz_dirname = f'{out_dir}/viz'
@@ -168,6 +176,7 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
     out = np_input
 
     # Visualize bandpass filter
+    bandpass_title = ''
     if bandpass is not None:
         out_t = input
         Q = bandpass['Q']
@@ -186,28 +195,42 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
             Q=Q
         )
         out = out_t.numpy()
+        bandpass_title = f'Bandpass filter ({bandpass["low_cutoff_freq"]} Hz - {bandpass["high_cutoff_freq"]} Hz)'
         lowpass_figure = __plot_audio(
             out,
             sample_rate,
-            f'Bandpass filter ({bandpass["low_cutoff_freq"]} Hz - {bandpass["high_cutoff_freq"]} Hz)'
+            bandpass_title
         )
         lowpass_figure.savefig(f'{job_dirname}/bandpass.svg')
 
-    # Visualize noise reduction (& lowpass)
+    # Visualize noise reduction (& bandpass)
+    noise_reduce_title = ''
     if noise_reduce is not None:
         out = nr.reduce_noise(
             y=out,
             sr=sample_rate,
             **noise_reduce
         )
+        noise_reduce_title = (
+            'Noise reduction '
+            f'({"stationary" if noise_reduce["stationary"] else "non stationary"})'
+        )
         noise_reduce_figure = __plot_audio(
             out,
             sample_rate,
-            'Noise reduction '
-            f'({"stationary" if noise_reduce["stationary"] else "non stationary"}) '
-            f'& Bandpass filter ({bandpass["low_cutoff_freq"]} Hz # {bandpass["high_cutoff_freq"]} Hz)' if bandpass is not None else ''
+            noise_reduce_title + f' & {bandpass_title}' if bandpass is not None else ''
         )
         noise_reduce_figure.savefig(f'{job_dirname}/noise_reduction.svg')
+
+    # Visualize scaling (& bandpass & noise reduction)
+    if scale is not None:
+        out = out * scale
+        scale_figure = __plot_audio(
+            out,
+            sample_rate,
+            f'Scaled ({scale})' + (f' & {bandpass_title}' if bandpass is not None else '') + (f' & {noise_reduce_title}' if noise_reduce is not None else '')
+        )
+        scale_figure.savefig(f'{job_dirname}/scale.svg')
 
 
 def save_noise_floor(input: NP_BUFFER, temp_dir: str = 'tmp', filename: str = 'noise-floor') -> None:

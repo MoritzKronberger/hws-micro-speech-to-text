@@ -39,4 +39,5 @@ except Exception:
 preprocessing_options: preprocessing_opts = {
     'bandpass': bandpass_options,
     'noise_reduce': noise_reduction_options,
+    'scale':75
 }
