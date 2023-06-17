@@ -1,28 +1,47 @@
 """Define main preprocessing visualization function."""
 
-import torch
-import sounddevice as sd
-from app.env import DEVICE_SAMPLE_RATE, NOISE_FLOOR_DURATION_S, CHANNELS
-from app.preprocessing import visualize_preprocessing
-from app.utils import print_countdown
+import inquirer
+from app.env import RECORDINGS_PATH
+from app.preprocessing import preprocess_tensor, visualize_preprocessing
 from app.config import preprocessing_options
+from app.wav import get_wav_files, load_tensor_from_wav, save_tensor_as_wav
 
 
 def main():
     """Run main processing visualization."""
-    # Record input to visualize
-    print(sd.query_devices())
-    print(f'Recording {NOISE_FLOOR_DURATION_S}s input to visualize in...')
-    print_countdown(5)
-    print('Started recording...')
-    input = sd.rec(
-        int(NOISE_FLOOR_DURATION_S * DEVICE_SAMPLE_RATE),
-        DEVICE_SAMPLE_RATE,
-        channels=CHANNELS,
-        dtype='float32',
-        blocking=True
-    )
-    print('Successfully recorded noise floor')
-    print('Visualizing preprocessing...')
-    input_tensor = torch.from_numpy(input.flatten())
-    visualize_preprocessing(input_tensor, DEVICE_SAMPLE_RATE, preprocessing_options)
+    # Prompt user for recording to use as noise floor
+    recordings = get_wav_files(RECORDINGS_PATH)
+    prompts = [
+        inquirer.List(
+            'recording_filepath',
+            message='Recording to use as noise floor',
+            choices=recordings
+        ),
+        inquirer.Confirm(
+            'save_wav',
+            message='Save preprocessed audio to recordings'
+        ),
+        inquirer.Text(
+            'sub_dirname',
+            message='Visualization sub-directory name'
+        )
+    ]
+    answers = inquirer.prompt(prompts)
+    if answers is None:
+        raise Exception('No recording selected')
+
+    # Load recording
+    filepath = answers['recording_filepath']
+    save_wav: bool = answers['save_wav']
+    sub_dirname = answers['sub_dirname']
+    input_tensor, sample_rate = load_tensor_from_wav(filepath)
+    print(f'Successfully loaded recording')
+
+    visualize_preprocessing(input_tensor, sample_rate, preprocessing_options, sub_dirname)
+
+    # Preprocess audio and save as wav
+    if save_wav:
+        print('Saving preprocessed audio to recordings...')
+        preprocessed_tensor = preprocess_tensor(input_tensor, sample_rate, preprocessing_options)
+        save_tensor_as_wav(preprocessed_tensor, sample_rate, f'{sub_dirname}_preprocessed', RECORDINGS_PATH)
+        print('Successfully saved preprocessed audio')

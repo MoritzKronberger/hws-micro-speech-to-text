@@ -5,10 +5,7 @@ import numpy as np
 import noisereduce as nr
 import matplotlib.pyplot as plt
 from typing import TypedDict, Literal
-from uuid import uuid4
 from torchaudio.functional import lowpass_biquad, highpass_biquad
-from torchaudio import sox_effects
-from scipy.io.wavfile import write as write_wav
 from matplotlib.figure import Figure
 from app.env import NP_BUFFER
 from app.utils import create_dir_if_not_exists
@@ -148,7 +145,7 @@ def __plot_audio(input: NP_BUFFER, sample_rate: int, title: str) -> Figure:
     return fig
 
 
-def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preprocessing_opts, out_dir: str = 'out') -> None:
+def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preprocessing_opts, sub_dirname: str, out_dir: str = 'out') -> None:
     """Visualize preprocessing steps in spectrograms.
 
     Reference:
@@ -159,7 +156,7 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
 
     # Create output directory
     viz_dirname = f'{out_dir}/viz'
-    job_dirname = f'{viz_dirname}/{uuid4()}'
+    job_dirname = f'{viz_dirname}/{sub_dirname}'
     create_dir_if_not_exists(job_dirname)
 
     np_input = input.numpy()
@@ -213,13 +210,11 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
         noise_reduce_figure.savefig(f'{job_dirname}/noise_reduction.svg')
 
 
-def save_noise_floor(input: NP_BUFFER, sample_rate: int, temp_dir: str = 'tmp', filename: str = 'noise-floor', save_wav: bool = True) -> None:
+def save_noise_floor(input: NP_BUFFER, temp_dir: str = 'tmp', filename: str = 'noise-floor') -> None:
     """Save Numpy buffer of noise floor to disk."""
     create_dir_if_not_exists(temp_dir)
     filename = f'{temp_dir}/{filename}'
     np.save(filename, input)
-    if save_wav:
-        write_wav(f'{filename}.wav', sample_rate, input)
 
 
 def load_noise_floor(temp_dir: str = 'tmp', filename: str = 'noise-floor') -> NP_BUFFER:

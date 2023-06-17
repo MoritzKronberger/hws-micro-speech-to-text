@@ -30,3 +30,5 @@ PASSTHROUGH = __from_dotenv('PASSTHROUGH') == 'True'
 NOISE_FLOOR_DURATION_S = float(__from_dotenv('NOISE_FLOOR_DURATION_S'))
 
 NP_BUFFER = npt.NDArray[np.float32]
+OUT_PATH = 'out'
+RECORDINGS_PATH = f'{OUT_PATH}/recordings'
