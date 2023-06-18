@@ -1,5 +1,6 @@
 """Global configuration for Micro STT app."""
 
+from app.models.pocket_sphinx import PocketSphinx
 from app.models.silero import Silero
 from app.models.hubert import HuBERT
 from app.env import NOISE_FLOOR_DURATION_S
@@ -7,6 +8,7 @@ from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts
 
 # Register available transcription models
 models = {
+    'pocketsphinx': PocketSphinx,
     'silero': Silero,
     'hubert': HuBERT,
 }
@@ -24,11 +26,11 @@ bandpass_options: bandpass_opts = {
 try:
     noise_floor = load_noise_floor()
     noise_reduction_options: noise_reduce_opts = {
-    'stationary': False,
-    'y_noise': noise_floor,
-    'prop_decrease': 1,
-    'time_constant_s': NOISE_FLOOR_DURATION_S,
-}
+        'stationary': False,
+        'y_noise': noise_floor,
+        'prop_decrease': 1,
+        'time_constant_s': NOISE_FLOOR_DURATION_S,
+    }
 except Exception:
     noise_reduction_options: noise_reduce_opts = {
         'stationary': True,
