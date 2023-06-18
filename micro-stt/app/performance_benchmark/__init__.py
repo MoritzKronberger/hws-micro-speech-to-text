@@ -23,7 +23,12 @@ from app.wav import get_wav_files, load_tensor_from_wav
 BATCH_SIZES = [1, 5, 10, 25]
 
 
-def benchmark(inputs: list[torch.Tensor], sample_rate: int, model_names: list[str], micro_controllers: list[micro_controller], system_cpu_speed_ghz: float) -> full_results:
+def benchmark(
+        inputs: list[torch.Tensor],
+        sample_rate: int,
+        model_names: list[str],
+        micro_controllers: list[micro_controller],
+        system_cpu_speed_ghz: float) -> full_results:
     """Run performance benchmark."""
     model_results: list[universal_model_results | torch_model_results] = []
 
@@ -129,11 +134,11 @@ def main():
 
     if len(waveform_inputs) == 0:
         raise Exception('Input audio directory must contain at least one wav file')
-    
+
     batches = [
         waveform_inputs[:size] for size in BATCH_SIZES if len(waveform_inputs) >= size
     ]
-    
+
     model_names = answers['models']
     with open(answers['micro_controller'], 'r') as f:
         micro_controllers: list[micro_controller] = json.load(f)
@@ -144,7 +149,7 @@ def main():
 
     # Run benchmark for batches and write results to disk
     for batch in batches:
-        inputs =[_[0] for _ in batch]
+        inputs = [_[0] for _ in batch]
         results = benchmark(
             inputs,
             TARGET_SAMPLE_RATE,

@@ -17,7 +17,7 @@ def create_dir_if_not_exists(dirpath: str) -> None:
 
 def get_hash_comment(content: str) -> str:
     """Print hash comment.
-    
+
     I.e.:
     ```
     ###########
@@ -44,7 +44,7 @@ def print_countdown(seconds: int) -> None:
 
 def get_immidiate_sub_dirs(dirpath: str) -> list[str]:
     """Get all immediate subdirectories.
-    
+
     Reference:
     https://stackoverflow.com/a/40347279/14906871
     """
@@ -57,7 +57,7 @@ def get_file_paths(dirpath: str, file_ending: str) -> list[str]:
 
 
 def byte_to_mb(byte: float) -> float:
-    "Convert byte to MB."
+    """Convert byte to MB."""
     return byte / (1024 ** 2)
 
 

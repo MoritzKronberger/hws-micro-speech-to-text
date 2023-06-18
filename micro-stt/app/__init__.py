@@ -19,6 +19,7 @@ actions = {
     'Run performance benchmark': performance_benchmark,
 }
 
+
 async def main() -> None:
     """Prompt and run app action."""
     # Define selection for app actions using inquirer

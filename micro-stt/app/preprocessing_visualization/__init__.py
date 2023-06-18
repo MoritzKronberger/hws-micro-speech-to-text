@@ -35,7 +35,7 @@ def main():
     save_wav: bool = answers['save_wav']
     sub_dirname = answers['sub_dirname']
     input_tensor, sample_rate = load_tensor_from_wav(filepath, target_sample_rate=None)
-    print(f'Successfully loaded recording')
+    print('Successfully loaded recording')
 
     visualize_preprocessing(input_tensor, sample_rate, preprocessing_options, sub_dirname)
 

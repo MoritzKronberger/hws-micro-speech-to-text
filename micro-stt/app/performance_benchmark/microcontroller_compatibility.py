@@ -11,6 +11,7 @@ from app.utils import byte_to_mb
 
 
 class micro_controller(TypedDict):
+    """Micro controller dict."""
     name: str
     architecture: str
     memory_mb: float
@@ -18,11 +19,15 @@ class micro_controller(TypedDict):
 
 
 class micro_controller_compatibility_results(universal_bench_result):
+    """Compatibility list dict."""
     compatible: bool
     micro_controller_info: micro_controller
 
 
-def micro_controller_compatibility(micro_ctr: micro_controller, results: universal_bench_result, system_cpu_speed_ghz: float) -> micro_controller_compatibility_results:
+def micro_controller_compatibility(
+        micro_ctr: micro_controller,
+        results: universal_bench_result,
+        system_cpu_speed_ghz: float) -> micro_controller_compatibility_results:
     """Scale benchmark results to micro controller and determine model compatibility."""
     # Scale CPU results to micro controller
     cpu_speed_factor = micro_ctr['cpu_speed_ghz'] / system_cpu_speed_ghz

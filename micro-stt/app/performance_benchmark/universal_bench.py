@@ -17,6 +17,7 @@ from app.utils import get_audio_duration_ms
 
 
 class universal_bench_result(TypedDict):
+    """Universal benchmark results dict."""
     memory_rss_byte: float
     inference_time_ms: float
     per_core_1_over_rtf: float
@@ -39,7 +40,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # - https://docs.python.org/3/library/os.html#os.getpid
     # - https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
     process = psutil.Process(os.getpid())
-    _out = model.transcribe_tensor(inputs, sample_rate)
+    _ = model.transcribe_tensor(inputs, sample_rate)
     memory_info = process.memory_full_info()
     memory_rss_byte = memory_info.rss
 
@@ -51,7 +52,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # References:
     # - https://docs.python.org/3/library/timeit.html#timeit.default_timer
     start = default_timer()
-    _out = model.transcribe_tensor(inputs, sample_rate)
+    _ = model.transcribe_tensor(inputs, sample_rate)
     end = default_timer()
     inference_time_ms = (end - start) * 1000
 

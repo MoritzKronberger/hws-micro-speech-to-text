@@ -42,7 +42,7 @@ def load_tensor_from_wav(filepath: str, target_sample_rate: int | None) -> tuple
 
 def record_blocking(duration_s: float, sample_rate: int, countdown_s: int | None = 5) -> torch.Tensor:
     """Record audio using sounddevice.
-    
+
     Reference:
     https://python-sounddevice.readthedocs.io/en/0.3.7/#recording
     """

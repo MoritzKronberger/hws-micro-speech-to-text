@@ -17,7 +17,7 @@ class Silero(IModel):
 
     def __init__(self) -> None:
         """Create new Silero model.
-        
+
         Reference:
         https://pytorch.org/hub/snakers4_silero-models_stt
         """
@@ -31,7 +31,7 @@ class Silero(IModel):
 
     def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
         """Transcribe input batches.
-        
+
         Reference:
         https://pytorch.org/hub/snakers4_silero-models_stt
         """

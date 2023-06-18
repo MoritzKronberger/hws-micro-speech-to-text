@@ -23,7 +23,7 @@ def main():
     # Load recording
     filepath = answers['recording_filepath']
     noise_floor_tensor, sample_rate = load_tensor_from_wav(filepath, target_sample_rate=None)
-    print(f'Successfully loaded recording')
+    print('Successfully loaded recording')
 
     # Apply all other preprocessing steps
     print('Preprocessing recording...')

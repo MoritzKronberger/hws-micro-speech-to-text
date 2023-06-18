@@ -9,4 +9,3 @@ if __name__ == "__main__":
     # https://python-sounddevice.readthedocs.io/en/0.3.15/examples.html#using-a-stream-in-an-asyncio-coroutine
     # (Error handled by root module)
     asyncio.run(main())
-

@@ -14,13 +14,19 @@ from app.models import IModel
 
 
 class torch_bench_result(TypedDict):
+    """Torch benchmark results dict."""
     cpu_time_ms: float
     self_cpu_time_ms: float
     cpu_memory_usage_byte: int
     flops: int
 
 
-def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, verbose: bool = False, row_limit: int = 5) -> torch_bench_result:
+def benchmark(
+        model: IModel,
+        inputs: list[torch.Tensor],
+        sample_rate: int,
+        verbose: bool = False,
+        row_limit: int = 5) -> torch_bench_result:
     """Run universal performance benchmark."""
     # Manually run garbage collection
     # (Just to be sure)
@@ -38,7 +44,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, verbo
         with_stack=True
     ) as prof:
         with profiler.record_function('model_inference'):
-            _out = model.transcribe_tensor(inputs, sample_rate)
+            _ = model.transcribe_tensor(inputs, sample_rate)
 
     key_averages = prof.key_averages()
     total_averages = key_averages.total_average()

@@ -4,6 +4,7 @@ from torch import Tensor
 
 model_inputs = list[Tensor]
 
+
 class IModel():
     """Interface for transcription model."""
 

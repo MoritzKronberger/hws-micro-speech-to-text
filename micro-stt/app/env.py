@@ -5,6 +5,7 @@ import numpy as np
 import numpy.typing as npt
 from dotenv import load_dotenv
 
+
 def __from_dotenv(varname: str) -> str:
     """Load .env variable."""
     load_dotenv()

@@ -39,7 +39,7 @@ def prettify_results(results: full_results) -> str:
         torch_result = model_result.get('torch_results')
         result_str = (
             'Universal benchmark results:\n'
-            f'Memory usage RSS [mb]: {byte_to_mb(result["memory_rss_byte"])}\n'
+            f'Memory usage RSS [MB]: {byte_to_mb(result["memory_rss_byte"])}\n'
             f'Inference time [ms]: {result["inference_time_ms"]}\n'
             f'Per core 1 / RTF: {result["per_core_1_over_rtf"]}\n'
             '\n'
@@ -84,5 +84,5 @@ def prettify_results(results: full_results) -> str:
         micro_controller_str = micro_controller_table.get_string()
         pretty_string += micro_controller_str
         pretty_string += '\n'
-    
+
     return pretty_string
