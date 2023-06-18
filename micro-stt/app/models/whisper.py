@@ -1,25 +1,30 @@
 """PyTorch Whisper model."""
 
+from typing import Literal
 import torch
 from app.models import IModel, model_inputs
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 
-class Whisper(IModel):
-    """PyTorch Whisper model."""
+class __GenericWhisper(IModel):
+    """Generic PyTorch Whisper model.
 
-    name = 'Whisper'
+    Used to instantiate small and tiny versions.
+    """
+
     is_pytorch = True
 
-    def __init__(self) -> None:
-        """Create new Whisper model.
+    def __init__(self, size: Literal['tiny', 'small']) -> None:
+        """Create new generic Whisper model.
 
         Reference:
         https://huggingface.co/openai/whisper-small#transcription
         """
-        self.processor: WhisperProcessor = WhisperProcessor.from_pretrained("openai/whisper-small")
+        model_path = f'openai/whisper-{size}'
+        self.name = f'Whisper ({size})'
+        self.processor: WhisperProcessor = WhisperProcessor.from_pretrained(model_path)
         self.model: WhisperForConditionalGeneration = WhisperForConditionalGeneration.from_pretrained(
-            "openai/whisper-small"
+            model_path
         )
         self.model.config.forced_decoder_ids = None
 
@@ -35,3 +40,19 @@ class Whisper(IModel):
         predicted_ids = self.model.generate(input_features)
         output = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
         return ';'.join(output)
+
+
+class WhisperSmall(__GenericWhisper):
+    """Small PyTorch Whisper model."""
+
+    def __init__(self) -> None:
+        """Create new small Whisper model."""
+        super().__init__('small')
+
+
+class WhisperTiny(__GenericWhisper):
+    """Tiny PyTorch Whisper model."""
+
+    def __init__(self) -> None:
+        """Create new tiny Whisper model."""
+        super().__init__('tiny')

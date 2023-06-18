@@ -2,7 +2,7 @@
 
 from app.models.pocket_sphinx import PocketSphinx
 from app.models.silero import Silero
-from app.models.whisper import Whisper
+from app.models.whisper import WhisperSmall, WhisperTiny
 from app.env import NOISE_FLOOR_DURATION_S
 from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts, preprocessing_opts
 
@@ -10,7 +10,8 @@ from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts
 models = {
     'pocketsphinx': PocketSphinx,
     'silero': Silero,
-    'whisper': Whisper,
+    'whisper-tiny': WhisperTiny,
+    'whisper-small': WhisperSmall,
 }
 
 # Configure bandpass filter
