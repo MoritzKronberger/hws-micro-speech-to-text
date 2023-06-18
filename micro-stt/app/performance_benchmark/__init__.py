@@ -6,39 +6,15 @@ import inquirer
 import psutil
 import platform
 import torch
-from typing import TypedDict
 from app.config import models
 from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
-from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility, micro_controller_compatibility_results
-from app.performance_benchmark.torch_bench import torch_bench_result, benchmark as torch_benchmark
-from app.performance_benchmark.universal_bench import universal_bench_result, benchmark as universal_benchmark
+from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
+from app.performance_benchmark.prettify import prettify_results
+from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
+from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
+from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
 from app.utils import create_dir_if_not_exists, get_audio_duration_ms, get_file_paths, get_immidiate_sub_dirs
 from app.wav import get_wav_files, load_tensor_from_wav
-
-
-class sys_info(TypedDict):
-    machine: str
-    system: str
-    version: str
-    processor: str
-    memory_byte: int
-    cpu_speed_ghz: float
-
-
-class universal_model_results(TypedDict):
-    model_name: str
-    results: universal_bench_result
-    micro_controllers_compats: list[micro_controller_compatibility_results]
-
-
-class torch_model_results(universal_model_results):
-    torch_results: torch_bench_result
-
-
-class full_results(TypedDict):
-    system_info: sys_info
-    audio_duration_ms: float
-    model_results: list[universal_model_results | torch_model_results]
 
 
 # Use different batch sizes
@@ -176,8 +152,10 @@ def main():
             micro_controllers,
             CPU_SPEED_GHZ
         )
-
-        # Write results to disk
-        results_filepath = f'{results_dirpath}/results_batch_{len(batch)}.json'
-        with open(results_filepath, 'w') as f:
+        pretty_results = prettify_results(results)
+        results_json_filepath = f'{results_dirpath}/results_batch_{len(batch)}.json'
+        with open(results_json_filepath, 'w') as f:
             json.dump(results, f)
+        results_pretty_filepath = f'{results_dirpath}/results_batch_{len(batch)}.txt'
+        with open(results_pretty_filepath, 'w') as f:
+            f.write(pretty_results)

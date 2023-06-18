@@ -15,7 +15,7 @@ def create_dir_if_not_exists(dirpath: str) -> None:
     )
 
 
-def print_hash_comment(content: str):
+def get_hash_comment(content: str) -> str:
     """Print hash comment.
     
     I.e.:
@@ -28,12 +28,10 @@ def print_hash_comment(content: str):
     content_str = f'# {content} #'
     num_hashes = len(content_str)
     hashes = '#' * num_hashes
-    print(
-        '\n'
+    return (
         f'{hashes}\n'
         f'{content_str}\n'
         f'{hashes}\n'
-        '\n'
     )
 
 

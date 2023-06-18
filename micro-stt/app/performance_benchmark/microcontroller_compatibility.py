@@ -19,6 +19,7 @@ class micro_controller(TypedDict):
 
 class micro_controller_compatibility_results(universal_bench_result):
     compatible: bool
+    micro_controller_info: micro_controller
 
 
 def micro_controller_compatibility(micro_ctr: micro_controller, results: universal_bench_result, system_cpu_speed_ghz: float) -> micro_controller_compatibility_results:
@@ -40,4 +41,5 @@ def micro_controller_compatibility(micro_ctr: micro_controller, results: univers
         'inference_time_ms': inference_time_ms,
         'per_core_1_over_rtf': per_core_1_over_rtf,
         'compatible': compatible,
+        'micro_controller_info': micro_ctr,
     }
