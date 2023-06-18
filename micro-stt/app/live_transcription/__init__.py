@@ -82,7 +82,7 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
                 )
                 waveform_tensor = resample(waveform_tensor)
             # Transcribe audio
-            transcription = model.transcribe_tensor(waveform_tensor, TARGET_SAMPLE_RATE)
+            transcription = model.transcribe_tensor([waveform_tensor], TARGET_SAMPLE_RATE)
             print(transcription)
         except Empty:
             continue

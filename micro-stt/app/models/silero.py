@@ -1,7 +1,7 @@
 """PyTorch Silero model."""
 
 import torch
-from app.models import IModel
+from app.models import IModel, model_inputs
 from app.env import LANGUAGE
 
 
@@ -29,15 +29,15 @@ class Silero(IModel):
             device=self.device
         )
 
-    def transcribe_tensor(self, waveform_tensor: torch.Tensor, sample_rate: int) -> str:
-        """Transcribe live data.
+    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+        """Transcribe input batches.
         
         Reference:
         https://pytorch.org/hub/snakers4_silero-models_stt
         """
-        in_tensor_batches = [waveform_tensor]
+        # Transcribe inputs
         prepare_model_input = self.utils[-1]
-        input = prepare_model_input(in_tensor_batches, self.device)
+        input = prepare_model_input(inputs, self.device)
         output = self.model(input)
         return ';'.join(
             [self.decoder(example.cpu()) for example in output]

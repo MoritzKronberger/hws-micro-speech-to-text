@@ -3,9 +3,8 @@
 import torch
 import torchaudio
 import sounddevice as sd
-from glob import glob
 from scipy.io.wavfile import write as write_wav
-from app.utils import print_countdown
+from app.utils import get_file_paths, print_countdown
 from app.env import CHANNELS
 
 
@@ -73,4 +72,4 @@ def record_blocking(duration_s: float, sample_rate: int, countdown_s: int | None
 
 def get_wav_files(dirpath: str) -> list[str]:
     """Get filepaths of all wav files in directory."""
-    return [f'{dirpath}/{filename}' for filename in glob('*.wav', root_dir=dirpath)]
+    return get_file_paths(dirpath, '.wav')

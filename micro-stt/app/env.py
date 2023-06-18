@@ -22,7 +22,10 @@ BLOCK_SIZE = int(__from_dotenv('BLOCK_SIZE'))
 CHANNELS = int(__from_dotenv('CHANNELS'))
 LANGUAGE = __from_dotenv('LANGUAGE')
 NOISE_FLOOR_DURATION_S = float(__from_dotenv('NOISE_FLOOR_DURATION_S'))
+CPU_SPEED_GHZ = float(__from_dotenv('CPU_SPEED_GHZ'))
 
 NP_BUFFER = npt.NDArray[np.float32]
 OUT_PATH = 'out'
+IN_PATH = 'in'
 RECORDINGS_PATH = f'{OUT_PATH}/recordings'
+BENCHMARK_PATH = f'{OUT_PATH}/benchmarks'

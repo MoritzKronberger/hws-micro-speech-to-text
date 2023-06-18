@@ -2,6 +2,7 @@
 
 from torch import Tensor
 
+model_inputs = list[Tensor]
 
 class IModel():
     """Interface for transcription model."""
@@ -9,6 +10,6 @@ class IModel():
     name: str
     is_pytorch: bool
 
-    def transcribe_tensor(self, waveform_tensor: Tensor, sample_rate: int) -> str:
-        """Transcribe waveform tensor."""
+    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+        """Transcribe input batches."""
         raise NotImplementedError

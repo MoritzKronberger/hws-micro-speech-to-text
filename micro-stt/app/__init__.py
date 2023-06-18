@@ -7,6 +7,7 @@ from app import noise_floor_calibration
 from app import preprocessing_visualization
 from app import file_transcription
 from app import live_transcription
+from app import performance_benchmark
 from app.utils import print_hash_comment
 
 actions = {
@@ -15,6 +16,7 @@ actions = {
     'Visualize preprocessing (from wav)': preprocessing_visualization,
     'Transcribe recording (from wav)': file_transcription,
     'Start live transcription': live_transcription,
+    'Run performance benchmark': performance_benchmark,
 }
 
 async def main() -> None:
