@@ -31,7 +31,7 @@ class __GenericWhisper(IModel):
         )
         self.model.config.forced_decoder_ids = None
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         Reference:
@@ -41,8 +41,8 @@ class __GenericWhisper(IModel):
         flat_inputs = torch.stack(inputs).flatten()
         input_features = self.processor(flat_inputs, sampling_rate=sample_rate, return_tensors='pt').input_features
         predicted_ids = self.model.generate(input_features)
-        output = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
-        return ';'.join(output)
+        outputs = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
+        return outputs
 
 
 class WhisperSmall(__GenericWhisper):
@@ -82,7 +82,7 @@ class __GenericWhisperCPP(IModel):
         self.name = f'Whisper C++ ({size})'
         self.model = WhisperCPP(size)
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         Reference:
@@ -94,7 +94,7 @@ class __GenericWhisperCPP(IModel):
         np_inputs = flat_inputs.numpy()
         segments = self.model.transcribe(np_inputs)
         outputs = self.model.extract_text(segments)
-        return ''.join(outputs)
+        return outputs
 
 
 class WhisperCPPBase(__GenericWhisperCPP):

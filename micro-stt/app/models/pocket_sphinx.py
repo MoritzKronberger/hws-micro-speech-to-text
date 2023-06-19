@@ -21,7 +21,7 @@ class PocketSphinx(IModel):
         """
         self.decoder = Decoder(samprate=TARGET_SAMPLE_RATE)
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         References:
@@ -44,4 +44,4 @@ class PocketSphinx(IModel):
             self.decoder.end_utt()
             output = self.decoder.hyp().hypstr
             outputs.append(output)
-        return ';'.join(outputs)
+        return outputs
