@@ -1,14 +1,20 @@
 """Global configuration for Micro STT app."""
 
+from app.models.pocket_sphinx import PocketSphinx
 from app.models.silero import Silero
-from app.models.hubert import HuBERT
+from app.models.whisper import WhisperSmall, WhisperTiny, WhisperCPPBase, WhisperCPPSmall, WhisperCPPTiny
 from app.env import NOISE_FLOOR_DURATION_S
 from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts, preprocessing_opts
 
 # Register available transcription models
 models = {
+    'pocketsphinx': PocketSphinx,
     'silero': Silero,
-    'hubert': HuBERT,
+    'whisper-tiny': WhisperTiny,
+    'whisper-small': WhisperSmall,
+    'whisper-cpp-tiny': WhisperCPPTiny,
+    'whisper-cpp-small': WhisperCPPSmall,
+    'whisper-cpp-base': WhisperCPPBase,
 }
 
 # Configure bandpass filter
@@ -16,19 +22,19 @@ models = {
 # Reference: https://en.wikipedia.org/wiki/Voice_frequency
 bandpass_options: bandpass_opts = {
     'low_cutoff_freq': 50,
-    'high_cutoff_freq': 300,
-    'Q': 0.85
+    'high_cutoff_freq': 3000,
+    'Q': 0.707
 }
 
 # Configure noise reduction
 try:
     noise_floor = load_noise_floor()
     noise_reduction_options: noise_reduce_opts = {
-    'stationary': False,
-    'y_noise': noise_floor,
-    'prop_decrease': 1,
-    'time_constant_s': NOISE_FLOOR_DURATION_S,
-}
+        'stationary': False,
+        'y_noise': noise_floor,
+        'prop_decrease': 1,
+        'time_constant_s': NOISE_FLOOR_DURATION_S,
+    }
 except Exception:
     noise_reduction_options: noise_reduce_opts = {
         'stationary': True,
@@ -38,6 +44,6 @@ except Exception:
 # Configure audio preprocessing
 preprocessing_options: preprocessing_opts = {
     'bandpass': bandpass_options,
-    'noise_reduce': noise_reduction_options,
-    'scale':75
+    'noise_reduce': None,
+    'scale': 1
 }

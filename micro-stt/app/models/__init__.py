@@ -2,6 +2,8 @@
 
 from torch import Tensor
 
+model_inputs = list[Tensor]
+
 
 class IModel():
     """Interface for transcription model."""
@@ -9,6 +11,6 @@ class IModel():
     name: str
     is_pytorch: bool
 
-    def transcribe_live(self, in_tensor: Tensor) -> str:
-        """Transcribe live audio."""
+    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+        """Transcribe input batches."""
         raise NotImplementedError

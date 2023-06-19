@@ -56,6 +56,7 @@ noise_reduce_opts = stationary_noise_reduce_opts | non_stationary_noise_reduce_o
 
 
 class preprocessing_opts(TypedDict):
+    """Preprocessing options dict."""
     bandpass: bandpass_opts | None
     noise_reduce: noise_reduce_opts | None
     scale: float | None
@@ -152,7 +153,12 @@ def __plot_audio(input: NP_BUFFER, sample_rate: int, title: str) -> Figure:
     return fig
 
 
-def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preprocessing_opts, sub_dirname: str, out_dir: str = 'out') -> None:
+def visualize_preprocessing(
+        input: torch.Tensor,
+        sample_rate: int,
+        opts: preprocessing_opts,
+        sub_dirname: str,
+        out_dir: str = 'out') -> None:
     """Visualize preprocessing steps in spectrograms.
 
     Reference:
@@ -228,7 +234,8 @@ def visualize_preprocessing(input: torch.Tensor, sample_rate: int, opts: preproc
         scale_figure = __plot_audio(
             out,
             sample_rate,
-            f'Scaled ({scale})' + (f' & {bandpass_title}' if bandpass is not None else '') + (f' & {noise_reduce_title}' if noise_reduce is not None else '')
+            f'Scaled ({scale})' + (f' & {bandpass_title}' if bandpass is not None else '') +
+            (f' & {noise_reduce_title}' if noise_reduce is not None else '')
         )
         scale_figure.savefig(f'{job_dirname}/scale.svg')
 

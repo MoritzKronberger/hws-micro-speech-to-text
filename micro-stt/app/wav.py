@@ -3,9 +3,8 @@
 import torch
 import torchaudio
 import sounddevice as sd
-from glob import glob
 from scipy.io.wavfile import write as write_wav
-from app.utils import print_countdown
+from app.utils import get_file_paths, print_countdown
 from app.env import CHANNELS
 
 
@@ -21,19 +20,29 @@ def save_tensor_as_wav(input: torch.Tensor, sample_rate: int, filename: str, pat
     write_wav(f'{path}/{filename}.wav', sample_rate, input.numpy())
 
 
-def load_tensor_from_wav(filepath: str) -> tuple[torch.Tensor, int]:
+def load_tensor_from_wav(filepath: str, target_sample_rate: int | None) -> tuple[torch.Tensor, int]:
     """Load Torch tensor from wav file.
 
-    Reference:
-    https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data
+    Optionally resample audio.
+
+    References:
+    - https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data
+    - https://github.com/snakers4/silero-models/blob/master/src/silero/utils.py
     """
     tensor, sample_rate = torchaudio.load(filepath)
+    if target_sample_rate is not None and sample_rate != target_sample_rate:
+        resample = torchaudio.transforms.Resample(
+            orig_freq=sample_rate,
+            new_freq=target_sample_rate
+        )
+        tensor = resample(tensor)
+        sample_rate = target_sample_rate
     return (tensor[0], sample_rate)
 
 
 def record_blocking(duration_s: float, sample_rate: int, countdown_s: int | None = 5) -> torch.Tensor:
     """Record audio using sounddevice.
-    
+
     Reference:
     https://python-sounddevice.readthedocs.io/en/0.3.7/#recording
     """
@@ -63,4 +72,4 @@ def record_blocking(duration_s: float, sample_rate: int, countdown_s: int | None
 
 def get_wav_files(dirpath: str) -> list[str]:
     """Get filepaths of all wav files in directory."""
-    return [f'{dirpath}/{filename}' for filename in glob('*.wav', root_dir=dirpath)]
+    return get_file_paths(dirpath, '.wav')
