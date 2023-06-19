@@ -66,3 +66,8 @@ def get_audio_duration_ms(inputs: list[torch.Tensor], sample_rate: int) -> float
     waveform = torch.stack(inputs).flatten()
     num_samples = waveform.size(dim=0)
     return (num_samples / sample_rate) * 1000
+
+def get_audio_duration_ms_flexible_length(inputs, sample_rate):
+    total_duration_ms = sum(len(audio) for audio in inputs) * 1000
+    average_duration_ms = total_duration_ms / (len(inputs) * sample_rate)
+    return average_duration_ms
