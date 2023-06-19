@@ -94,7 +94,7 @@ class __GenericWhisperCPP(IModel):
         np_inputs = flat_inputs.numpy()
         segments = self.model.transcribe(np_inputs)
         outputs = self.model.extract_text(segments)
-        return ';'.join(outputs)
+        return ''.join(outputs)
 
 
 class WhisperCPPBase(__GenericWhisperCPP):
