@@ -11,6 +11,6 @@ class IModel():
     name: str
     is_pytorch: bool
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches."""
         raise NotImplementedError
