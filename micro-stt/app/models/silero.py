@@ -2,7 +2,7 @@
 
 import torch
 from app.models import IModel
-from app.config import LANGUAGE
+from app.env import LANGUAGE
 
 
 class Silero(IModel):
