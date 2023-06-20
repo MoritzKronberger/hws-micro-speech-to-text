@@ -51,7 +51,7 @@ def benchmark(
                 }
             )
 
-    print("Model Results:", model_results)  # Add this line to check model_results
+    #print("Model Results:", model_results)  # Add this line to check model_results
 
     # Calculate audio duration
     #audio_duration_ms = get_audio_duration_ms_flexible_length(inputs, sample_rate)
@@ -96,7 +96,6 @@ def main():
     input_audio_filepaths = [path.replace('/', '\\') for path in input_audio_filepaths]  # Update this line
     #print("Input audio file paths:", input_audio_filepaths)  # Add this line
     waveform_inputs = [load_tensor_from_wav(path, TARGET_SAMPLE_RATE) for path in input_audio_filepaths]
-    print("Waveform inputs:", waveform_inputs)  # Add this line
     if len(waveform_inputs) == 0:
         raise Exception('Input audio directory must contain at least one WAV file')
 
@@ -120,7 +119,7 @@ def main():
 
     # Run benchmark for batches and write results to disk
     inputs = [_[0] for _ in waveform_inputs]
-    print([inp.shape for inp in inputs])  # Add this line to check the shape of the tensors
+    #print([inp.shape for inp in inputs])  # Add this line to check the shape of the tensors
     results = benchmark(
         inputs,
         TARGET_SAMPLE_RATE,
@@ -134,7 +133,6 @@ def main():
     with open(results_pretty_filepath, 'w') as f:
         f.write(pretty_results)
 
-    print("Benchmark completed successfully.")
 
     print("Benchmark completed successfully.")
 
