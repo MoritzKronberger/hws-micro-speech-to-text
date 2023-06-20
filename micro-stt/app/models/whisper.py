@@ -37,10 +37,12 @@ class __GenericWhisper(IModel):
         Reference:
         https://github.com/MiscellaneousStuff/openai-whisper-cpu/blob/main/script/custom_whisper.py
         """
-        # Flatten inputs into single array
-        flat_inputs = torch.stack(inputs).flatten()
-        output = whisper.transcribe(self.model, flat_inputs)
-        return output['text']  # type: ignore
+        # Process batch-wise (faster than single flattened tensor)
+        outputs: list[str] = []
+        for input in inputs:
+            output = whisper.transcribe(self.model, input)
+            outputs.append(output['text'])  # type: ignore
+        return ' '.join(outputs)
 
 
 class WhisperSmall(__GenericWhisper):
