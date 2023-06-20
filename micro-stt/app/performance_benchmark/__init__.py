@@ -11,7 +11,7 @@ from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
-from app.performance_benchmark.to_text_table import to_tex_table
+from app.performance_benchmark.to_tex_table import to_tex_table
 from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
 from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
 from app.utils import create_dir_if_not_exists, get_audio_duration_ms, get_file_paths, get_immidiate_sub_dirs
