@@ -44,7 +44,7 @@ def benchmark(
         with_stack=True
     ) as prof:
         with profiler.record_function('model_inference'):
-            _ = model.transcribe_tensor(inputs, sample_rate)
+            _ = model.transcribe_tensor_batches(inputs, sample_rate)
 
     key_averages = prof.key_averages()
     total_averages = key_averages.total_average()

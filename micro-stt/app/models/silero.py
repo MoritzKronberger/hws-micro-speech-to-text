@@ -40,7 +40,7 @@ class __GenericSilero(IModel):
                 dtype=torch.qint8
             )
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         Reference:
@@ -50,9 +50,8 @@ class __GenericSilero(IModel):
         prepare_model_input = self.utils[-1]
         input = prepare_model_input(inputs, self.device)
         output = self.model(input)
-        return ';'.join(
-            [self.decoder(example.cpu()) for example in output]
-        )
+        outputs = [self.decoder(example.cpu()) for example in output]
+        return outputs
 
 
 class Silero(__GenericSilero):

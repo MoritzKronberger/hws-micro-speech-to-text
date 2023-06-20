@@ -16,8 +16,8 @@ def transcribe_file(filepath: str, model: IModel, preprocess: bool) -> None:
         print('Preprocessing recording...')
         waveform = preprocess_tensor(waveform, sample_rate, preprocessing_options)
     print('Transcribing...')
-    transcription = model.transcribe_tensor([waveform], sample_rate)
-    print(f'\n{transcription}\n')
+    transcription = model.transcribe_tensor_batches([waveform], sample_rate)
+    print(f'\n{" ".join(transcription)}\n')
 
 
 def main():
