@@ -1,88 +1,48 @@
-"""Format benchmark results as pretty string."""
-
+"""Format benchmark results as a pretty string."""
+import statistics
 from prettytable import PrettyTable
-from app.performance_benchmark.result_types import full_results
-from app.utils import byte_to_mb, get_hash_comment
+from app.quality_benchmark.result_types import full_results
+from app.utils import get_hash_comment
 
 
 def prettify_results(results: list[full_results]) -> str:
-    """Format benchmark results as pretty string."""
-    pretty_string = ''
-    # Format system info
-    system_info = results['system_info']
-    system_info_header = f'{get_hash_comment("System info")}\n'
-    pretty_string += system_info_header
-    system_info_str = (
-        f'Arch: {system_info["machine"]}\n'
-        f'Platform: {system_info["system"]} {system_info["version"]}\n'
-        f'CPU: {system_info["processor"]}, {system_info["cpu_speed_ghz"]} GHz\n'
-        f'Memory: {byte_to_mb(system_info["memory_byte"])} MB\n'
-        '\n'
-    )
-    pretty_string += system_info_str
+    total_word_error_count = 0
+    total_samples = 0
+    error_count_distribution = [0, 0, 0, 0, 0]
 
-    # Format benchmark info
-    model_results = results["model_results"]
-    audio_duration_s = results["audio_duration_ms"] * 0.001
-    model_benchmark_info = (
-        f'Benchmarked {len(model_results)} models '
-        f'for {audio_duration_s} seconds of audio\n'
-    )
-    pretty_string += model_benchmark_info
+    for result in results:
+        word_error_count = result["word_error_count"]
+        total_word_error_count += sum(word_error_count)
+        total_samples += len(word_error_count)
 
-    for model_result in model_results:
-        # Format model header
-        model_header = f'\n{get_hash_comment(model_result["model_name"])}\n'
-        pretty_string += model_header
-        # Format model results
-        result = model_result['results']
-        torch_result = model_result.get('torch_results')
-        result_str = (
-            'Universal benchmark results:\n'
-            f'Memory usage RSS [MB]: {byte_to_mb(result["memory_rss_byte"])}\n'
-            f'Inference time [ms]: {result["inference_time_ms"]}\n'
-            f'Per core 1 / RTF: {result["per_core_1_over_rtf"]}\n'
-            '\n'
-        )
-        pretty_string += result_str
-        if torch_result is not None:
-            torch_result_str = (
-                'Torch benchmark results:\n'
-                f'Memory usage [MB]: {byte_to_mb(torch_result["cpu_memory_usage_byte"])}\n'
-                f'CPU time [ms]: {torch_result["cpu_time_ms"]}\n'
-                f'Self CPU time [ms]: {torch_result["self_cpu_time_ms"]}\n'
-                f'MFlops: {torch_result["flops"] * 0.000001}\n'
-                '\n'
-            )
-            pretty_string += torch_result_str
-        # Format micro controller compatibility
-        micro_controller_compats = model_result['micro_controllers_compats']
-        table_headers = [
-            'Micro Controller',
-            'CPU Speed [GHz]',
-            'Memory [MB]',
-            'Memory RSS [MB]',
-            'Estimated Inference Time [ms]',
-            'Estimated per core 1 / RTF',
-            'Compatible'
-        ]
-        table_rows: list[list[str | float | bool]] = []
-        for micro_ctr_compat in micro_controller_compats:
-            row = [
-                micro_ctr_compat['micro_controller_info']['name'],
-                micro_ctr_compat['micro_controller_info']['cpu_speed_ghz'],
-                micro_ctr_compat['micro_controller_info']['memory_mb'],
-                byte_to_mb(micro_ctr_compat['memory_rss_byte']),
-                micro_ctr_compat['inference_time_ms'],
-                micro_ctr_compat['per_core_1_over_rtf'],
-                micro_ctr_compat['compatible']
-            ]
-            table_rows.append(row)
-        micro_controller_table = PrettyTable()
-        micro_controller_table.field_names = table_headers
-        micro_controller_table.add_rows(table_rows)
-        micro_controller_str = micro_controller_table.get_string()
-        pretty_string += micro_controller_str
-        pretty_string += '\n'
+        for error_count in word_error_count:
+            if error_count < 1:
+                error_count_distribution[0] += 1
+            elif error_count < 2:
+                error_count_distribution[1] += 1
+            elif error_count < 3:
+                error_count_distribution[2] += 1
+            elif error_count < 4:
+                error_count_distribution[3] += 1
+            else:
+                error_count_distribution[4] += 1
+
+    average_word_error_count = total_word_error_count / total_samples
+    sample_percentage = [count / total_samples * 100 for count in error_count_distribution]
+
+    pretty_string = f"Benchmark Results - LJ Speech\n\n"
+    pretty_string += f"Average Word Error Count: {average_word_error_count}\n\n"
+    pretty_string += "Word Error Count Distribution:\n"
+
+    ranges = ["0-1", "1-2", "2-3", "3-4", "4 - *"]
+    for i, count in enumerate(error_count_distribution):
+        pretty_string += f"- {ranges[i]}: {sample_percentage[i]}% of samples\n"
 
     return pretty_string
+
+
+
+
+
+
+
