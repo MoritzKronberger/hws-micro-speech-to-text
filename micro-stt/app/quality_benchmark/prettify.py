@@ -28,17 +28,18 @@ def prettify_results(results: list[full_results]) -> str:
                 error_count_distribution[4] += 1
 
     average_word_error_count = total_word_error_count / total_samples
-    sample_percentage = [count / total_samples * 100 for count in error_count_distribution]
+    sample_percentage = [round(count / total_samples * 100, 2) for count in error_count_distribution]
 
     pretty_string = f"Benchmark Results - LJ Speech\n\n"
-    pretty_string += f"Average Word Error Count: {average_word_error_count}\n\n"
+    pretty_string += f"Average Word Error Count: {average_word_error_count:.2f}\n\n"
     pretty_string += "Word Error Count Distribution:\n"
 
-    ranges = ["0-1", "1-2", "2-3", "3-4", "4 - *"]
+    ranges = ["0-1", "1-2", "2-3", "3-4", "4 =<"]
     for i, count in enumerate(error_count_distribution):
         pretty_string += f"- {ranges[i]}: {sample_percentage[i]}% of samples\n"
 
     return pretty_string
+
 
 
 
