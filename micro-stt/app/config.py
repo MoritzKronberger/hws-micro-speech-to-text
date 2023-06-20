@@ -1,7 +1,7 @@
 """Global configuration for Micro STT app."""
 
 from app.models.pocket_sphinx import PocketSphinx
-from app.models.silero import Silero
+from app.models.silero import Silero, SileroQuantized
 from app.models.whisper import (
     WhisperSmall,
     WhisperTiny,
@@ -18,6 +18,7 @@ from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts
 models = {
     'pocketsphinx': PocketSphinx,
     'silero': Silero,
+    'silero-quantized': SileroQuantized,
     'whisper-tiny': WhisperTiny,
     'whisper-small': WhisperSmall,
     'whisper-tiny-quantized': WhisperTinyQuantized,
