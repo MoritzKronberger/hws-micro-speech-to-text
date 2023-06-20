@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Raspberry Pi 1 B+",
+        "architecture": "ARM11 (32-bit)",
+        "memory_mb": 512,
+        "cpu_speed_ghz": 0.7
+    },
+    {
+        "name": "Raspberry Pi Zero W",
+        "architecture": "ARM11 (32-bit)",
+        "memory_mb": 512,
+        "cpu_speed_ghz": 1
+    },
+    {
+        "name": "Raspberry Pi 3 B",
+        "architecture": "ARM Cortex-A53 (64-bit)",
+        "memory_mb": 1000,
+        "cpu_speed_ghz": 1.2
+    },
+    {
+        "name": "Raspberry Pi 4 Model B 4Go",
+        "architecture": "ARM Cortex-A72 (64-bit) ",
+        "memory_mb": 4000,
+        "cpu_speed_ghz": 1.5
+    }
+]
