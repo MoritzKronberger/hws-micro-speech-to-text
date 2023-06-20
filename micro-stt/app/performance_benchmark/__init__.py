@@ -11,6 +11,7 @@ from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
+from app.performance_benchmark.to_text_table import to_tex_table
 from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
 from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
 from app.utils import create_dir_if_not_exists, get_audio_duration_ms, get_file_paths, get_immidiate_sub_dirs
@@ -158,9 +159,13 @@ def main():
             CPU_SPEED_GHZ
         )
         pretty_results = prettify_results(results)
+        tex_results = to_tex_table(results)
         results_json_filepath = f'{results_dirpath}/results_batch_{len(batch)}.json'
         with open(results_json_filepath, 'w') as f:
             json.dump(results, f)
         results_pretty_filepath = f'{results_dirpath}/results_batch_{len(batch)}.txt'
         with open(results_pretty_filepath, 'w') as f:
             f.write(pretty_results)
+        results_tex_filepath = f'{results_dirpath}/results_batch_{len(batch)}.tex'
+        with open(results_tex_filepath, 'w') as f:
+            f.write(tex_results)
