@@ -1,16 +1,13 @@
 """Run quality benchmark."""
 
 import csv
-import gc
 import json
 import inquirer
-import psutil
-import platform
 import torch
 from app.config import models
 from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
-from app.performance_benchmark.prettify import prettify_results
+from app.quality_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
 from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
 from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
@@ -37,9 +34,7 @@ def benchmark(
         model = models[model_name]()
 
         # Transcribe inputs
-        transcriptions = model.transcribe_tensor(inputs, sample_rate)
-        print(transcriptions)
-        print(target_transcripts)
+        transcriptions = model.transcribe_tensor_batches(inputs, sample_rate)
         # Calculate word error count
         word_error_count = [wer(target, trans) for target, trans in zip(target_transcripts, transcriptions)]
         # DELETE MODEL TO FREE MEMORY
@@ -49,6 +44,10 @@ def benchmark(
                 {
                     'model_name': model_name,
                     'word_error_count': word_error_count,
+                    'transcriptions': {
+                    'reference': target_transcripts,
+                    'transcription': transcriptions
+                    }
                 }
             )
 
@@ -119,8 +118,6 @@ def main():
             target_transcripts.append(transcription)
 
 
-    #print(target_transcripts)
-
     # Run benchmark for batches and write results to disk
     inputs = [_[0] for _ in waveform_inputs]
     print([inp.shape for inp in inputs])  # Add this line to check the shape of the tensors
@@ -131,13 +128,15 @@ def main():
         target_transcripts
         )
 
-    #pretty_results = prettify_results(results)
-    results_json_filepath = f'{results_dirpath}/results.json'
-    with open(results_json_filepath, 'w') as f:
-        json.dump(results, f)
-    #results_pretty_filepath = f'{results_dirpath}/results.txt'
-    #with open(results_pretty_filepath, 'w') as f:
-     #   f.write(pretty_results)
+    pretty_results = prettify_results(results)
+
+    results_pretty_filepath = f'{results_dirpath}/results.txt'
+    with open(results_pretty_filepath, 'w') as f:
+        f.write(pretty_results)
+
+    print("Benchmark completed successfully.")
+
+    print("Benchmark completed successfully.")
 
 
 if __name__ == '__main__':
