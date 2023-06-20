@@ -82,8 +82,8 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
                 )
                 waveform_tensor = resample(waveform_tensor)
             # Transcribe audio
-            transcription = model.transcribe_tensor([waveform_tensor], TARGET_SAMPLE_RATE)
-            print(transcription)
+            transcription = model.transcribe_tensor_batches([waveform_tensor], TARGET_SAMPLE_RATE)
+            print(' '.join(transcription))
         except Empty:
             continue
     print('Transcription worker received stop event and exited')

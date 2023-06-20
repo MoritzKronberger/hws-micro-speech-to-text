@@ -40,7 +40,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # - https://docs.python.org/3/library/os.html#os.getpid
     # - https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
     process = psutil.Process(os.getpid())
-    _ = model.transcribe_tensor(inputs, sample_rate)
+    _ = model.transcribe_tensor_batches(inputs, sample_rate)
     memory_info = process.memory_full_info()
     memory_rss_byte = memory_info.rss
 
@@ -52,7 +52,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # References:
     # - https://docs.python.org/3/library/timeit.html#timeit.default_timer
     start = default_timer()
-    _ = model.transcribe_tensor(inputs, sample_rate)
+    _ = model.transcribe_tensor_batches(inputs, sample_rate)
     end = default_timer()
     inference_time_ms = (end - start) * 1000
 

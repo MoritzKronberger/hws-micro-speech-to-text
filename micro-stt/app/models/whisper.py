@@ -1,10 +1,10 @@
 """PyTorch Whisper model."""
 
 import torch
+import whisper
 from typing import Literal
 from whispercpp import Whisper as WhisperCPP
 from app.models import IModel, model_inputs
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
 
 WhisperSize = Literal['tiny', 'small', 'base']
 
@@ -12,37 +12,37 @@ WhisperSize = Literal['tiny', 'small', 'base']
 class __GenericWhisper(IModel):
     """Generic PyTorch Whisper model.
 
-    Used to instantiate small and tiny versions.
+    Used to instantiate small, tiny  and quantized versions.
+
+    Reference:
+    https://github.com/MiscellaneousStuff/openai-whisper-cpu/blob/main/script/custom_whisper.py
     """
 
     is_pytorch = True
 
-    def __init__(self, size: WhisperSize) -> None:
+    def __init__(self, size: WhisperSize, quantized: bool = False) -> None:
         """Create new generic Whisper model.
 
         Reference:
-        https://huggingface.co/openai/whisper-small#transcription
+        https://github.com/MiscellaneousStuff/openai-whisper-cpu/blob/main/script/custom_whisper.py
         """
-        model_path = f'openai/whisper-{size}'
-        self.name = f'Whisper ({size})'
-        self.processor: WhisperProcessor = WhisperProcessor.from_pretrained(model_path)
-        self.model: WhisperForConditionalGeneration = WhisperForConditionalGeneration.from_pretrained(
-            model_path
-        )
-        self.model.config.forced_decoder_ids = None
+        self.name = f'Whisper ({size}{", quantized" if quantized else ""})'
+        self.model = whisper.load_model(size)
+        if quantized:
+            self.model = torch.quantization.quantize_dynamic(self.model, {torch.nn.Linear}, dtype=torch.qint8)
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         Reference:
-        https://huggingface.co/openai/whisper-small#transcription
+        https://github.com/MiscellaneousStuff/openai-whisper-cpu/blob/main/script/custom_whisper.py
         """
-        # Flatten inputs into single array
-        flat_inputs = torch.stack(inputs).flatten()
-        input_features = self.processor(flat_inputs, sampling_rate=sample_rate, return_tensors='pt').input_features
-        predicted_ids = self.model.generate(input_features)
-        output = self.processor.batch_decode(predicted_ids, skip_special_tokens=True)
-        return ';'.join(output)
+        # Process batch-wise (faster than single flattened tensor)
+        outputs: list[str] = []
+        for input in inputs:
+            output = whisper.transcribe(self.model, input)
+            outputs.append(output['text'])  # type: ignore
+        return outputs
 
 
 class WhisperSmall(__GenericWhisper):
@@ -59,6 +59,22 @@ class WhisperTiny(__GenericWhisper):
     def __init__(self) -> None:
         """Create new tiny Whisper model."""
         super().__init__('tiny')
+
+
+class WhisperSmallQuantized(__GenericWhisper):
+    """Small PyTorch Whisper model."""
+
+    def __init__(self) -> None:
+        """Create new small, quantized Whisper model."""
+        super().__init__('small', quantized=True)
+
+
+class WhisperTinyQuantized(__GenericWhisper):
+    """Tiny PyTorch Whisper model."""
+
+    def __init__(self) -> None:
+        """Create new tiny, quantized Whisper model."""
+        super().__init__('tiny', quantized=True)
 
 
 class __GenericWhisperCPP(IModel):
@@ -82,7 +98,7 @@ class __GenericWhisperCPP(IModel):
         self.name = f'Whisper C++ ({size})'
         self.model = WhisperCPP(size)
 
-    def transcribe_tensor(self, inputs: model_inputs, sample_rate: int) -> str:
+    def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
 
         Reference:
@@ -94,7 +110,7 @@ class __GenericWhisperCPP(IModel):
         np_inputs = flat_inputs.numpy()
         segments = self.model.transcribe(np_inputs)
         outputs = self.model.extract_text(segments)
-        return ''.join(outputs)
+        return outputs
 
 
 class WhisperCPPBase(__GenericWhisperCPP):
