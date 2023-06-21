@@ -72,7 +72,6 @@ def benchmark(
         _ = model.transcribe_tensor_batches(inputs, sample_rate)
         end = default_timer()
         inference_time_ms_its.append((end - start) * 1000)
-    print(inference_time_ms_its)
     inference_time_ms = float(np.mean(np.array(inference_time_ms_its)))
     std_inference_time_ms = float(np.std(np.array(inference_time_ms_its)))
 
