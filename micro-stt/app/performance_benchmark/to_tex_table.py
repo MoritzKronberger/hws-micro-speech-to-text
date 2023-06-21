@@ -22,7 +22,7 @@ def to_tex_table(results: full_results) -> str:
         r'| >{\raggedleft\arraybackslash}X | }',
         r'\hline',
         r'\textbf{Model} & \textbf{Memory usage} & \textbf{Inference time}' +
-        r' & \textbf{RTF} & \textbf{RTF@1GHz} \\',
+        r' & \textbf{RTF} & \textbf{RTF@1GHz/Core} \\',
         r'\hline',
     ]
     microctr_compat_table_str = [
@@ -49,7 +49,7 @@ def to_tex_table(results: full_results) -> str:
         inf_time_ms = df.format(result['inference_time_ms'])
         std_inf_time_ms = df.format(result['std_inference_time_ms'])
         rtf = df.format(result['rtf'])
-        rtf_at_1ghz = df.format(result['rtf_at_1ghz'])
+        rtf_at_1ghz = df.format(result['rtf_at_1ghz_per_core'])
         model_results_table_str.extend([
             model_result['model_name'] + r' & ' + memory_usage_mb + r' MB (\sigma=' + std_memory_usage_mb +
             r') & ' + inf_time_ms + r' ms (\sigma=' + std_inf_time_ms + r') & ' + rtf + r' & ' + rtf_at_1ghz + r' \\',

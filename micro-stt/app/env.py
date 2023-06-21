@@ -44,6 +44,7 @@ ENABLE_SCALE = __from_dotenv('ENABLE_SCALE') == 'True'
 
 # Performance benchmark configuration
 CPU_SPEED_GHZ = float(__from_dotenv('CPU_SPEED_GHZ'))
+CPU_CORES = int(__from_dotenv('CPU_CORES'))
 
 # Helper constants
 NP_BUFFER = npt.NDArray[np.float32]

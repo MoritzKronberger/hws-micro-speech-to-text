@@ -16,6 +16,7 @@ class micro_controller(TypedDict):
     architecture: str
     memory_mb: float
     cpu_speed_ghz: float
+    cpu_cores: int
 
 
 class micro_controller_compatibility_results(TypedDict):
@@ -31,13 +32,13 @@ class micro_controller_compatibility_results(TypedDict):
 def micro_controller_compatibility(
         micro_ctr: micro_controller,
         results: universal_bench_result,
-        system_cpu_speed_ghz: float) -> micro_controller_compatibility_results:
+        system_cpu_speed_ghz: float,
+        system_cpu_cores: int) -> micro_controller_compatibility_results:
     """Scale benchmark results to micro controller and determine model compatibility."""
     # Scale CPU results to micro controller
-    # (Assumes same amount of threads/ cores can be used)
-    cpu_speed_factor = system_cpu_speed_ghz / micro_ctr['cpu_speed_ghz']
-    inference_time_ms = results['inference_time_ms'] * cpu_speed_factor
-    rtf = results['rtf'] * cpu_speed_factor
+    cpu_factor = (system_cpu_speed_ghz * system_cpu_cores) / (micro_ctr['cpu_speed_ghz'] * micro_ctr['cpu_cores'])
+    inference_time_ms = results['inference_time_ms'] * cpu_factor
+    rtf = results['rtf'] * cpu_factor
     # Determine compatibility:
     # - RTF <= 1 -> processing can be done in real time
     # - Memory usage % < 100 -> model can fit into memory (under ideal conditions)

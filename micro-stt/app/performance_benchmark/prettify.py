@@ -45,7 +45,7 @@ def prettify_results(results: full_results) -> str:
             f'Inference time [ms]: {result["inference_time_ms"]}\n'
             f'Std inference time [ms]: {result["std_inference_time_ms"]}\n'
             f'RTF: {result["rtf"]}\n'
-            f'RTF@1Ghz:{result["rtf_at_1ghz"]}\n'
+            f'RTF@1Ghz/Core:{result["rtf_at_1ghz_per_core"]}\n'
             '\n'
         )
         pretty_string += result_str

@@ -7,7 +7,7 @@ import psutil
 import platform
 import torch
 from app.config import models
-from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
+from app.env import BENCHMARK_PATH, CPU_CORES, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
@@ -30,6 +30,7 @@ def benchmark(
         model_names: list[str],
         micro_controllers: list[micro_controller],
         system_cpu_speed_ghz: float,
+        system_cpu_cores: int,
         iterations: int) -> full_results:
     """Run performance benchmark."""
     model_results: list[universal_model_results | torch_model_results] = []
@@ -39,7 +40,14 @@ def benchmark(
         model = models[model_name]()
 
         # Run universal benchmark
-        universal_results = universal_benchmark(model, inputs, sample_rate, system_cpu_speed_ghz, iterations)
+        universal_results = universal_benchmark(
+            model,
+            inputs,
+            sample_rate,
+            system_cpu_speed_ghz,
+            system_cpu_cores,
+            iterations
+        )
 
         # Run torch benchmark for torch models
         if model.is_pytorch:
@@ -49,7 +57,7 @@ def benchmark(
 
         # Calculate micro controller compatibilities
         micro_controller_compats = [
-            micro_controller_compatibility(micro_ctr, universal_results, system_cpu_speed_ghz)
+            micro_controller_compatibility(micro_ctr, universal_results, system_cpu_speed_ghz, system_cpu_cores)
             for micro_ctr in micro_controllers
         ]
 
@@ -164,6 +172,7 @@ def main():
             model_names,
             micro_controllers,
             CPU_SPEED_GHZ,
+            CPU_CORES,
             iterations
         )
         pretty_results = prettify_results(results)
