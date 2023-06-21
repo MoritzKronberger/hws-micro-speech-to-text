@@ -37,26 +37,22 @@ def benchmark(
         transcriptions = model.transcribe_tensor_batches(inputs, sample_rate)
         # Calculate word error count
         word_error_count = [wer(target, trans) for target, trans in zip(target_transcripts, transcriptions)]
-        # DELETE MODEL TO FREE MEMORY
-        model_name = model.name
-    
+        # Calculate audio duration
+        audio_duration_ms = get_audio_duration_ms_flexible_length(inputs, sample_rate)
+
         model_results.append(
-                {
-                    'model_name': model_name,
-                    'word_error_count': word_error_count,
-                    'transcriptions': {
+            {
+                'model_name': model_name,
+                'word_error_count': word_error_count,
+                'audio_durations': audio_duration_ms,
+                'transcriptions': {
                     'reference': target_transcripts,
                     'transcription': transcriptions
-                    }
                 }
-            )
+            }
+        )
 
-    #print("Model Results:", model_results)  # Add this line to check model_results
-
-    # Calculate audio duration
-    #audio_duration_ms = get_audio_duration_ms_flexible_length(inputs, sample_rate)
     return model_results
-
 
 
 
