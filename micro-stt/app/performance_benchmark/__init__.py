@@ -39,7 +39,7 @@ def benchmark(
         model = models[model_name]()
 
         # Run universal benchmark
-        universal_results = universal_benchmark(model, inputs, sample_rate, iterations)
+        universal_results = universal_benchmark(model, inputs, sample_rate, system_cpu_speed_ghz, iterations)
 
         # Run torch benchmark for torch models
         if model.is_pytorch:

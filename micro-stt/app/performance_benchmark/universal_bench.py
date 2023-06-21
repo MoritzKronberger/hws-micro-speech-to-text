@@ -24,10 +24,16 @@ class universal_bench_result(TypedDict):
     inference_time_ms: float
     std_inference_time_ms: float
     rtf: float
+    rtf_at_1ghz: float
     audio_duration_ms: float
 
 
-def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, iterations: int) -> universal_bench_result:
+def benchmark(
+        model: IModel,
+        inputs: list[torch.Tensor],
+        sample_rate: int,
+        system_cpu_speed_ghz: float,
+        iterations: int) -> universal_bench_result:
     """Run universal performance benchmark."""
     # Manually run garbage collection
     # (Just to be sure)
@@ -79,6 +85,7 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, itera
     # - https://github.com/snakers4/silero-models/wiki/Performance-Benchmarks#ce-speed-benchmarks
     audio_duration_ms = get_audio_duration_ms(inputs, sample_rate)
     rtf = inference_time_ms / audio_duration_ms
+    rtf_at_1ghz = rtf * system_cpu_speed_ghz
 
     return {
         'memory_rss_byte': memory_rss_byte,
@@ -86,5 +93,6 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, itera
         'inference_time_ms': inference_time_ms,
         'std_inference_time_ms': std_inference_time_ms,
         'rtf': rtf,
+        'rtf_at_1ghz': rtf_at_1ghz,
         'audio_duration_ms': audio_duration_ms,
     }
