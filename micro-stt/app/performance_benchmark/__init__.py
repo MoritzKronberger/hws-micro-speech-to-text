@@ -29,7 +29,8 @@ def benchmark(
         sample_rate: int,
         model_names: list[str],
         micro_controllers: list[micro_controller],
-        system_cpu_speed_ghz: float) -> full_results:
+        system_cpu_speed_ghz: float,
+        iterations: int) -> full_results:
     """Run performance benchmark."""
     model_results: list[universal_model_results | torch_model_results] = []
 
@@ -38,7 +39,7 @@ def benchmark(
         model = models[model_name]()
 
         # Run universal benchmark
-        universal_results = universal_benchmark(model, inputs, sample_rate)
+        universal_results = universal_benchmark(model, inputs, sample_rate, system_cpu_speed_ghz, iterations)
 
         # Run torch benchmark for torch models
         if model.is_pytorch:
@@ -94,6 +95,7 @@ def benchmark(
     return {
         'system_info': system_info,
         'audio_duration_ms': audio_duration_ms,
+        'iterations': iterations,
         'model_results': model_results,
     }
 
@@ -123,6 +125,10 @@ def main():
         inquirer.Text(
             'name',
             message='Benchmark name'
+        ),
+        inquirer.Text(
+            'iterations',
+            message='Iterations'
         )
     ]
     answers = inquirer.prompt(prompts)
@@ -132,6 +138,7 @@ def main():
     # Benchmark configuration
     input_audio_filepaths = get_wav_files(answers['audio_in_dir'])
     waveform_inputs = [load_tensor_from_wav(path, TARGET_SAMPLE_RATE) for path in input_audio_filepaths]
+    iterations = int(answers['iterations'])
 
     if len(waveform_inputs) == 0:
         raise Exception('Input audio directory must contain at least one wav file')
@@ -156,7 +163,8 @@ def main():
             TARGET_SAMPLE_RATE,
             model_names,
             micro_controllers,
-            CPU_SPEED_GHZ
+            CPU_SPEED_GHZ,
+            iterations
         )
         pretty_results = prettify_results(results)
         tex_results = to_tex_table(results)

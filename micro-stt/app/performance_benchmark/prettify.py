@@ -26,7 +26,8 @@ def prettify_results(results: full_results) -> str:
     audio_duration_s = results["audio_duration_ms"] * 0.001
     model_benchmark_info = (
         f'Benchmarked {len(model_results)} models '
-        f'for {audio_duration_s} seconds of audio\n'
+        f'for {audio_duration_s} seconds of audio '
+        f'over {results["iterations"]} iterations\n'
     )
     pretty_string += model_benchmark_info
 
@@ -40,8 +41,11 @@ def prettify_results(results: full_results) -> str:
         result_str = (
             'Universal benchmark results:\n'
             f'Memory usage RSS [MB]: {byte_to_mb(result["memory_rss_byte"])}\n'
+            f'Std memory usage RSS [MB]: {byte_to_mb(result["std_memory_rss_byte"])}\n'
             f'Inference time [ms]: {result["inference_time_ms"]}\n'
-            f'Per core 1 / RTF: {result["per_core_1_over_rtf"]}\n'
+            f'Std inference time [ms]: {result["std_inference_time_ms"]}\n'
+            f'RTF: {result["rtf"]}\n'
+            f'RTF@1Ghz:{result["rtf_at_1ghz"]}\n'
             '\n'
         )
         pretty_string += result_str
@@ -63,7 +67,7 @@ def prettify_results(results: full_results) -> str:
             'Memory [MB]',
             'Memory RSS [MB]',
             'Estimated Inference Time [ms]',
-            'Estimated per core 1 / RTF',
+            'Estimated RTF',
             'Compatible'
         ]
         table_rows: list[list[str | float | bool]] = []
@@ -74,7 +78,7 @@ def prettify_results(results: full_results) -> str:
                 micro_ctr_compat['micro_controller_info']['memory_mb'],
                 byte_to_mb(micro_ctr_compat['memory_rss_byte']),
                 micro_ctr_compat['inference_time_ms'],
-                micro_ctr_compat['per_core_1_over_rtf'],
+                micro_ctr_compat['rtf'],
                 micro_ctr_compat['compatible']
             ]
             table_rows.append(row)
