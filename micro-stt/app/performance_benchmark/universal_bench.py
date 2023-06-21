@@ -20,7 +20,7 @@ class universal_bench_result(TypedDict):
     """Universal benchmark results dict."""
     memory_rss_byte: float
     inference_time_ms: float
-    per_core_1_over_rtf: float
+    rtf: float
     audio_duration_ms: float
 
 
@@ -60,16 +60,16 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # Calculate 1 / RTF per core #
     ##############################
 
-    # Calculate how many seconds of audio could be processed per second per core
-    # (Assumes inference was performed by a single core)
-    # Reference:
-    # https://github.com/snakers4/silero-models/wiki/Performance-Benchmarks#ce-speed-benchmarks
+    # Calculate realtime factor
+    # References:
+    # - https://openvoice-tech.net/index.php/Real-time-factor
+    # - https://github.com/snakers4/silero-models/wiki/Performance-Benchmarks#ce-speed-benchmarks
     audio_duration_ms = get_audio_duration_ms(inputs, sample_rate)
-    per_core_1_over_rtf = audio_duration_ms / inference_time_ms
+    rtf = inference_time_ms / audio_duration_ms
 
     return {
         'memory_rss_byte': memory_rss_byte,
         'inference_time_ms': inference_time_ms,
-        'per_core_1_over_rtf': per_core_1_over_rtf,
+        'rtf': rtf,
         'audio_duration_ms': audio_duration_ms,
     }

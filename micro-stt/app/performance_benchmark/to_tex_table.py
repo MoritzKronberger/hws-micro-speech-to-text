@@ -20,8 +20,8 @@ def to_tex_table(results: full_results) -> str:
         r'| >{\raggedleft\arraybackslash}X',
         r'| >{\raggedleft\arraybackslash}X | }',
         r'\hline',
-        r'\textbf{Model} & \textbf{Memory usage (RSS) [MB]} & \textbf{Inference time [ms]}' +
-        r' & \textbf{1 / RTF per core} \\',
+        r'\textbf{Model} & \textbf{Memory usage (RSS)} & \textbf{Inference time}' +
+        r' & \textbf{RTF} \\',
         r'\hline',
     ]
     microctr_compat_table_str = [
@@ -44,10 +44,11 @@ def to_tex_table(results: full_results) -> str:
     for model_result in model_results:
         result = model_result['results']
         memory_usage_mb = df.format(byte_to_mb(result['memory_rss_byte']))
-        inf_time = df.format(result['inference_time_ms'])
-        one_over_rtf = df.format(result['per_core_1_over_rtf'])
+        inf_time_ms = df.format(result['inference_time_ms'])
+        rtf = df.format(result['rtf'])
         model_results_table_str.extend([
-            model_result['model_name'] + r' & ' + memory_usage_mb + r' & ' + inf_time + r' & ' + one_over_rtf + r' \\',
+            model_result['model_name'] + r' & ' + memory_usage_mb +
+            r' MB & ' + inf_time_ms + r' ms & ' + rtf + r' \\',
             r'\hline'
         ])
 
@@ -77,8 +78,8 @@ def to_tex_table(results: full_results) -> str:
         # Add header row
         microctr_compat_table_str.extend(
             [
-                r'\textbf{Micro controller} & \textbf{Memory usage [\%]} & \textbf{Inference time [ms]} &' +
-                r'\textbf{1 / RTF per core} & \textbf{Compatible} \\',
+                r'\textbf{Micro controller} & \textbf{Memory usage} & \textbf{Inference time} &' +
+                r'\textbf{RTF} & \textbf{Compatible} \\',
                 r'\hline'
             ]
         )
@@ -88,13 +89,13 @@ def to_tex_table(results: full_results) -> str:
             controller_info = compat['micro_controller_info']
             memory_usage = byte_to_mb(compat['memory_rss_byte']) / controller_info['memory_mb']
             memory_usage_percent = df.format(memory_usage * 100)
-            inf_time = df.format(compat['inference_time_ms'])
-            one_over_rtf = df.format(compat['per_core_1_over_rtf'])
-            compatible = 'Yes' if memory_usage <= 1 and compat['per_core_1_over_rtf'] >= 1 else 'No'
+            inf_time_ms = df.format(compat['inference_time_ms'])
+            rtf = df.format(compat['rtf'])
+            compatible = 'Yes' if memory_usage <= 1 and compat['rtf'] <= 1 else 'No'
             microctr_compat_table_str.extend(
                 [
                     compat['micro_controller_info']['name'] + r' & ' + memory_usage_percent +
-                    r' \% & ' + inf_time + r' & ' + one_over_rtf + r' & ' + compatible + r' \\',
+                    r' \% & ' + inf_time_ms + r' ms & ' + rtf + r' & ' + compatible + r' \\',
                     r'\hline'
                 ]
             )
