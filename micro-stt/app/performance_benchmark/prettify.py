@@ -26,7 +26,8 @@ def prettify_results(results: full_results) -> str:
     audio_duration_s = results["audio_duration_ms"] * 0.001
     model_benchmark_info = (
         f'Benchmarked {len(model_results)} models '
-        f'for {audio_duration_s} seconds of audio\n'
+        f'for {audio_duration_s} seconds of audio '
+        f'over {results["iterations"]} iterations\n'
     )
     pretty_string += model_benchmark_info
 
@@ -40,7 +41,9 @@ def prettify_results(results: full_results) -> str:
         result_str = (
             'Universal benchmark results:\n'
             f'Memory usage RSS [MB]: {byte_to_mb(result["memory_rss_byte"])}\n'
+            f'Std memory usage RSS [MB]: {byte_to_mb(result["std_memory_rss_byte"])}\n'
             f'Inference time [ms]: {result["inference_time_ms"]}\n'
+            f'Std inference time [ms]: {result["std_inference_time_ms"]}\n'
             f'RTF: {result["rtf"]}\n'
             '\n'
         )

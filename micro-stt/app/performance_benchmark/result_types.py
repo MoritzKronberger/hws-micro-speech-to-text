@@ -35,4 +35,5 @@ class full_results(TypedDict):
     """Full results dict."""
     system_info: sys_info
     audio_duration_ms: float
+    iterations: int
     model_results: list[universal_model_results | torch_model_results]

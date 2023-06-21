@@ -20,7 +20,7 @@ def to_tex_table(results: full_results) -> str:
         r'| >{\raggedleft\arraybackslash}X',
         r'| >{\raggedleft\arraybackslash}X | }',
         r'\hline',
-        r'\textbf{Model} & \textbf{Memory usage (RSS)} & \textbf{Inference time}' +
+        r'\textbf{Model} & \textbf{Memory usage} & \textbf{Inference time}' +
         r' & \textbf{RTF} \\',
         r'\hline',
     ]
@@ -44,11 +44,13 @@ def to_tex_table(results: full_results) -> str:
     for model_result in model_results:
         result = model_result['results']
         memory_usage_mb = df.format(byte_to_mb(result['memory_rss_byte']))
+        std_memory_usage_mb = df.format(byte_to_mb(result['std_memory_rss_byte']))
         inf_time_ms = df.format(result['inference_time_ms'])
+        std_inf_time_ms = df.format(result['std_inference_time_ms'])
         rtf = df.format(result['rtf'])
         model_results_table_str.extend([
-            model_result['model_name'] + r' & ' + memory_usage_mb +
-            r' MB & ' + inf_time_ms + r' ms & ' + rtf + r' \\',
+            model_result['model_name'] + r' & ' + memory_usage_mb + r' MB (\sigma=' + std_memory_usage_mb +
+            r') & ' + inf_time_ms + r' ms (\sigma=' + std_inf_time_ms + r') & ' + rtf + r' \\',
             r'\hline'
         ])
 

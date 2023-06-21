@@ -18,10 +18,14 @@ class micro_controller(TypedDict):
     cpu_speed_ghz: float
 
 
-class micro_controller_compatibility_results(universal_bench_result):
+class micro_controller_compatibility_results(TypedDict):
     """Compatibility list dict."""
     compatible: bool
     micro_controller_info: micro_controller
+    audio_duration_ms: float
+    memory_rss_byte: float
+    inference_time_ms: float
+    rtf: float
 
 
 def micro_controller_compatibility(

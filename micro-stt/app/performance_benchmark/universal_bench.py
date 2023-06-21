@@ -10,6 +10,7 @@ import gc
 import os
 import psutil
 import torch
+import numpy as np
 from typing import TypedDict
 from timeit import default_timer
 from app.models import IModel
@@ -19,12 +20,14 @@ from app.utils import get_audio_duration_ms
 class universal_bench_result(TypedDict):
     """Universal benchmark results dict."""
     memory_rss_byte: float
+    std_memory_rss_byte: float
     inference_time_ms: float
+    std_inference_time_ms: float
     rtf: float
     audio_duration_ms: float
 
 
-def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> universal_bench_result:
+def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int, iterations: int) -> universal_bench_result:
     """Run universal performance benchmark."""
     # Manually run garbage collection
     # (Just to be sure)
@@ -39,10 +42,15 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # - https://psutil.readthedocs.io/en/latest/index.html?highlight=status#process-class
     # - https://docs.python.org/3/library/os.html#os.getpid
     # - https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
-    process = psutil.Process(os.getpid())
-    _ = model.transcribe_tensor_batches(inputs, sample_rate)
-    memory_info = process.memory_full_info()
-    memory_rss_byte = memory_info.rss
+    memory_rss_byte_its: list[float] = []
+    for _ in range(iterations):
+        process = psutil.Process(os.getpid())
+        _ = model.transcribe_tensor_batches(inputs, sample_rate)
+        memory_info = process.memory_full_info()
+        memory_rss_byte_its.append(memory_info.rss)
+        gc.collect()  # (Just to be sure)
+    memory_rss_byte = float(np.mean(np.array(memory_rss_byte_its)))
+    std_memory_rss_byte = float(np.std(np.array(memory_rss_byte_its)))
 
     ############################
     # Benchmark inference time #
@@ -51,10 +59,15 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # Get inference time
     # References:
     # - https://docs.python.org/3/library/timeit.html#timeit.default_timer
-    start = default_timer()
-    _ = model.transcribe_tensor_batches(inputs, sample_rate)
-    end = default_timer()
-    inference_time_ms = (end - start) * 1000
+    inference_time_ms_its: list[float] = []
+    for _ in range(iterations):
+        start = default_timer()
+        _ = model.transcribe_tensor_batches(inputs, sample_rate)
+        end = default_timer()
+        inference_time_ms_its.append((end - start) * 1000)
+    print(inference_time_ms_its)
+    inference_time_ms = float(np.mean(np.array(inference_time_ms_its)))
+    std_inference_time_ms = float(np.std(np.array(inference_time_ms_its)))
 
     ##############################
     # Calculate 1 / RTF per core #
@@ -69,7 +82,9 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
 
     return {
         'memory_rss_byte': memory_rss_byte,
+        'std_memory_rss_byte': std_memory_rss_byte,
         'inference_time_ms': inference_time_ms,
+        'std_inference_time_ms': std_inference_time_ms,
         'rtf': rtf,
         'audio_duration_ms': audio_duration_ms,
     }
