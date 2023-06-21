@@ -3,6 +3,7 @@
 import inquirer
 from inspect import iscoroutinefunction
 from app import recording
+from app import re_recording
 from app import noise_floor_calibration
 from app import preprocessing_visualization
 from app import file_transcription
@@ -12,6 +13,7 @@ from app.utils import get_hash_comment
 
 actions = {
     'Record audio (save as wav)': recording,
+    'Re-record audio files (from wav)': re_recording,
     'Calibrate noise floor (from wav)': noise_floor_calibration,
     'Visualize preprocessing (from wav)': preprocessing_visualization,
     'Transcribe recording (from wav)': file_transcription,
