@@ -7,13 +7,13 @@ import psutil
 import platform
 import torch
 from app.config import models
-from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
+from app.env import PERFORMANCE_BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
 from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
 from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
-from app.utils import create_dir_if_not_exists, get_audio_duration_ms_flexible_length, get_file_paths, get_immidiate_sub_dirs
+from app.utils import create_dir_if_not_exists, get_audio_duration_ms, get_file_paths, get_immidiate_sub_dirs
 from app.wav import get_wav_files, load_tensor_from_wav
 
 
@@ -38,7 +38,7 @@ def benchmark(
 
         # Run universal benchmark
         universal_results = universal_benchmark(model, inputs, sample_rate)
-        print("uni: " + universal_results)
+
         # Run torch benchmark for torch models
         if model.is_pytorch:
             torch_results = torch_benchmark(model, inputs, sample_rate)
@@ -88,8 +88,7 @@ def benchmark(
     }
 
     # Calculate audio duration
-    audio_duration_ms = get_audio_duration_ms_flexible_length(inputs, sample_rate)
-
+    audio_duration_ms = get_audio_duration_ms(inputs, sample_rate)
 
     return {
         'system_info': system_info,
@@ -145,7 +144,7 @@ def main():
         micro_controllers: list[micro_controller] = json.load(f)
     benchmark_name = answers['name']
 
-    results_dirpath = f'{BENCHMARK_PATH}/{benchmark_name}'
+    results_dirpath = f'{PERFORMANCE_BENCHMARK_PATH}/{benchmark_name}'
     create_dir_if_not_exists(results_dirpath)
 
     # Run benchmark for batches and write results to disk
