@@ -7,7 +7,7 @@ import psutil
 import platform
 import torch
 from app.config import models
-from app.env import BENCHMARK_PATH, CPU_CORES, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
+from app.env import BENCHMARK_PATH, CPU_CORES, CPU_SPEED_GHZ, ENABLE_TORCH_PROFILER, IN_PATH, TARGET_SAMPLE_RATE
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
@@ -50,7 +50,7 @@ def benchmark(
         )
 
         # Run torch benchmark for torch models
-        if model.is_pytorch:
+        if model.is_pytorch and ENABLE_TORCH_PROFILER:
             torch_results = torch_benchmark(model, inputs, sample_rate)
         else:
             torch_results = None
