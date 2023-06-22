@@ -33,19 +33,21 @@ def micro_controller_compatibility(
         micro_ctr: micro_controller,
         results: universal_bench_result,
         system_cpu_speed_ghz: float,
-        system_cpu_cores: int) -> micro_controller_compatibility_results:
+        system_cpu_cores: int,
+        max_memory_usage_prop: float) -> micro_controller_compatibility_results:
     """Scale benchmark results to micro controller and determine model compatibility."""
     # Scale CPU results to micro controller
     cpu_factor = (system_cpu_speed_ghz * system_cpu_cores) / (micro_ctr['cpu_speed_ghz'] * micro_ctr['cpu_cores'])
     inference_time_ms = results['inference_time_ms'] * cpu_factor
     rtf = results['rtf'] * cpu_factor
+    memory_usage = byte_to_mb(results['memory_rss_byte']) / micro_ctr['memory_mb']
     # Determine compatibility:
     # - RTF <= 1 -> processing can be done in real time
-    # - Memory usage % < 100 -> model can fit into memory (under ideal conditions)
+    # - Memory usage doesn't exceed memory usage limit
     compatible = (
         rtf <= 1
         and
-        byte_to_mb(results['memory_rss_byte']) <= micro_ctr['memory_mb']
+        memory_usage <= max_memory_usage_prop
     )
 
     return {

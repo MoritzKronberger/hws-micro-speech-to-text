@@ -95,7 +95,7 @@ def to_tex_table(results: full_results) -> str:
             memory_usage_percent = df.format(memory_usage * 100)
             inf_time_ms = df.format(compat['inference_time_ms'])
             rtf = df.format(compat['rtf'])
-            compatible = 'Yes' if memory_usage <= 1 and compat['rtf'] <= 1 else 'No'
+            compatible = 'Yes' if compat['compatible'] else 'No'
             microctr_compat_table_str.extend(
                 [
                     compat['micro_controller_info']['name'] + r' & ' + memory_usage_percent +

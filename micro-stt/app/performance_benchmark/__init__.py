@@ -7,7 +7,15 @@ import psutil
 import platform
 import torch
 from app.config import models
-from app.env import BENCHMARK_PATH, CPU_CORES, CPU_SPEED_GHZ, ENABLE_TORCH_PROFILER, IN_PATH, TARGET_SAMPLE_RATE
+from app.env import (
+    BENCHMARK_PATH,
+    CPU_CORES,
+    CPU_SPEED_GHZ,
+    ENABLE_TORCH_PROFILER,
+    IN_PATH,
+    MAX_MEMORY_USAGE_PROP,
+    TARGET_SAMPLE_RATE
+)
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
@@ -31,6 +39,7 @@ def benchmark(
         micro_controllers: list[micro_controller],
         system_cpu_speed_ghz: float,
         system_cpu_cores: int,
+        max_memory_usage_prop: float,
         iterations: int) -> full_results:
     """Run performance benchmark."""
     model_results: list[universal_model_results | torch_model_results] = []
@@ -57,7 +66,13 @@ def benchmark(
 
         # Calculate micro controller compatibilities
         micro_controller_compats = [
-            micro_controller_compatibility(micro_ctr, universal_results, system_cpu_speed_ghz, system_cpu_cores)
+            micro_controller_compatibility(
+                micro_ctr,
+                universal_results,
+                system_cpu_speed_ghz,
+                system_cpu_cores,
+                max_memory_usage_prop
+            )
             for micro_ctr in micro_controllers
         ]
 
@@ -173,6 +188,7 @@ def main():
             micro_controllers,
             CPU_SPEED_GHZ,
             CPU_CORES,
+            MAX_MEMORY_USAGE_PROP,
             iterations
         )
         pretty_results = prettify_results(results)
