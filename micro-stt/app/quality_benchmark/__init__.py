@@ -10,6 +10,7 @@ from app.env import IN_PATH, QUALITY_BENCHMARK_PATH, TARGET_SAMPLE_RATE
 from app.quality_benchmark.normalization import normalize_transcriptions
 from app.quality_benchmark.prettify import prettify_results
 from app.quality_benchmark.result_types import full_results, model_results
+from app.quality_benchmark.to_tex_table import to_tex_table
 from app.utils import (
     create_dir_if_not_exists,
     get_audio_duration_ms,
@@ -172,8 +173,12 @@ def main():
     # Write results to disk
     print('Writing results to disk...')
     pretty_results = prettify_results(results)
+    tex_results = to_tex_table(results)
     results_pretty_filepath = f'{results_dirpath}/results.txt'
     with open(results_pretty_filepath, 'w') as f:
         f.write(pretty_results)
+    results_tex_filepath = f'{results_dirpath}/results.tex'
+    with open(results_tex_filepath, 'w') as f:
+        f.write(tex_results)
 
     print("Benchmark completed successfully.")
