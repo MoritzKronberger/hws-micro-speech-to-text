@@ -110,6 +110,7 @@ def benchmark(
         'processor': platform.processor(),
         'memory_byte': psutil.virtual_memory().total,
         'cpu_speed_ghz': system_cpu_speed_ghz,
+        'cpu_cores': system_cpu_cores,
     }
 
     # Calculate audio duration
@@ -118,6 +119,7 @@ def benchmark(
     return {
         'system_info': system_info,
         'audio_duration_ms': audio_duration_ms,
+        'max_memory_usage_prop': MAX_MEMORY_USAGE_PROP,
         'iterations': iterations,
         'model_results': model_results,
     }

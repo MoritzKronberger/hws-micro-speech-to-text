@@ -17,6 +17,7 @@ class sys_info(TypedDict):
     processor: str
     memory_byte: int
     cpu_speed_ghz: float
+    cpu_cores: int
 
 
 class universal_model_results(TypedDict):
@@ -35,5 +36,6 @@ class full_results(TypedDict):
     """Full results dict."""
     system_info: sys_info
     audio_duration_ms: float
+    max_memory_usage_prop: float
     iterations: int
     model_results: list[universal_model_results | torch_model_results]
