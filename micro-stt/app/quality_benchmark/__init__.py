@@ -1,6 +1,7 @@
 """Run quality benchmark."""
 
 import csv
+import json
 import inquirer
 import torch
 import numpy as np
@@ -174,6 +175,9 @@ def main():
     print('Writing results to disk...')
     pretty_results = prettify_results(results)
     tex_results = to_tex_table(results)
+    results_json_filepath = f'{results_dirpath}/results.json'
+    with open(results_json_filepath, 'w') as f:
+        json.dump(results, f)
     results_pretty_filepath = f'{results_dirpath}/results.txt'
     with open(results_pretty_filepath, 'w') as f:
         f.write(pretty_results)
