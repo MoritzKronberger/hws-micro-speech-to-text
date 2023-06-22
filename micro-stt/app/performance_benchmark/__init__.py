@@ -7,10 +7,19 @@ import psutil
 import platform
 import torch
 from app.config import models
-from app.env import PERFORMANCE_BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
+from app.env import (
+    PERFORMANCE_BENCHMARK_PATH,
+    CPU_CORES,
+    CPU_SPEED_GHZ,
+    ENABLE_TORCH_PROFILER,
+    IN_PATH,
+    MAX_MEMORY_USAGE_PROP,
+    TARGET_SAMPLE_RATE
+)
 from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
 from app.performance_benchmark.prettify import prettify_results
 from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
+from app.performance_benchmark.to_tex_table import to_tex_table
 from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
 from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
 from app.utils import create_dir_if_not_exists, get_audio_duration_ms, get_file_paths, get_immidiate_sub_dirs
@@ -28,7 +37,10 @@ def benchmark(
         sample_rate: int,
         model_names: list[str],
         micro_controllers: list[micro_controller],
-        system_cpu_speed_ghz: float) -> full_results:
+        system_cpu_speed_ghz: float,
+        system_cpu_cores: int,
+        max_memory_usage_prop: float,
+        iterations: int) -> full_results:
     """Run performance benchmark."""
     model_results: list[universal_model_results | torch_model_results] = []
 
@@ -37,17 +49,30 @@ def benchmark(
         model = models[model_name]()
 
         # Run universal benchmark
-        universal_results = universal_benchmark(model, inputs, sample_rate)
+        universal_results = universal_benchmark(
+            model,
+            inputs,
+            sample_rate,
+            system_cpu_speed_ghz,
+            system_cpu_cores,
+            iterations
+        )
 
         # Run torch benchmark for torch models
-        if model.is_pytorch:
+        if model.is_pytorch and ENABLE_TORCH_PROFILER:
             torch_results = torch_benchmark(model, inputs, sample_rate)
         else:
             torch_results = None
 
         # Calculate micro controller compatibilities
         micro_controller_compats = [
-            micro_controller_compatibility(micro_ctr, universal_results, system_cpu_speed_ghz)
+            micro_controller_compatibility(
+                micro_ctr,
+                universal_results,
+                system_cpu_speed_ghz,
+                system_cpu_cores,
+                max_memory_usage_prop
+            )
             for micro_ctr in micro_controllers
         ]
 
@@ -85,6 +110,7 @@ def benchmark(
         'processor': platform.processor(),
         'memory_byte': psutil.virtual_memory().total,
         'cpu_speed_ghz': system_cpu_speed_ghz,
+        'cpu_cores': system_cpu_cores,
     }
 
     # Calculate audio duration
@@ -93,6 +119,8 @@ def benchmark(
     return {
         'system_info': system_info,
         'audio_duration_ms': audio_duration_ms,
+        'max_memory_usage_prop': MAX_MEMORY_USAGE_PROP,
+        'iterations': iterations,
         'model_results': model_results,
     }
 
@@ -122,6 +150,10 @@ def main():
         inquirer.Text(
             'name',
             message='Benchmark name'
+        ),
+        inquirer.Text(
+            'iterations',
+            message='Iterations'
         )
     ]
     answers = inquirer.prompt(prompts)
@@ -131,6 +163,7 @@ def main():
     # Benchmark configuration
     input_audio_filepaths = get_wav_files(answers['audio_in_dir'])
     waveform_inputs = [load_tensor_from_wav(path, TARGET_SAMPLE_RATE) for path in input_audio_filepaths]
+    iterations = int(answers['iterations'])
 
     if len(waveform_inputs) == 0:
         raise Exception('Input audio directory must contain at least one wav file')
@@ -155,12 +188,19 @@ def main():
             TARGET_SAMPLE_RATE,
             model_names,
             micro_controllers,
-            CPU_SPEED_GHZ
+            CPU_SPEED_GHZ,
+            CPU_CORES,
+            MAX_MEMORY_USAGE_PROP,
+            iterations
         )
         pretty_results = prettify_results(results)
+        tex_results = to_tex_table(results)
         results_json_filepath = f'{results_dirpath}/results_batch_{len(batch)}.json'
         with open(results_json_filepath, 'w') as f:
             json.dump(results, f)
         results_pretty_filepath = f'{results_dirpath}/results_batch_{len(batch)}.txt'
         with open(results_pretty_filepath, 'w') as f:
             f.write(pretty_results)
+        results_tex_filepath = f'{results_dirpath}/results_batch_{len(batch)}.tex'
+        with open(results_tex_filepath, 'w') as f:
+            f.write(tex_results)

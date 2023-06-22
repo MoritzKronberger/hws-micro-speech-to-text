@@ -10,6 +10,7 @@ import gc
 import os
 import psutil
 import torch
+import numpy as np
 from typing import TypedDict
 from timeit import default_timer
 from app.models import IModel
@@ -19,12 +20,21 @@ from app.utils import get_audio_duration_ms
 class universal_bench_result(TypedDict):
     """Universal benchmark results dict."""
     memory_rss_byte: float
+    std_memory_rss_byte: float
     inference_time_ms: float
-    per_core_1_over_rtf: float
+    std_inference_time_ms: float
+    rtf: float
+    rtf_at_1ghz_per_core: float
     audio_duration_ms: float
 
 
-def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> universal_bench_result:
+def benchmark(
+        model: IModel,
+        inputs: list[torch.Tensor],
+        sample_rate: int,
+        system_cpu_speed_ghz: float,
+        system_cpu_cores: int,
+        iterations: int) -> universal_bench_result:
     """Run universal performance benchmark."""
     # Manually run garbage collection
     # (Just to be sure)
@@ -39,10 +49,15 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # - https://psutil.readthedocs.io/en/latest/index.html?highlight=status#process-class
     # - https://docs.python.org/3/library/os.html#os.getpid
     # - https://psutil.readthedocs.io/en/latest/index.html#psutil.Process.memory_info
-    process = psutil.Process(os.getpid())
-    _ = model.transcribe_tensor_batches(inputs, sample_rate)
-    memory_info = process.memory_full_info()
-    memory_rss_byte = memory_info.rss
+    memory_rss_byte_its: list[float] = []
+    for _ in range(iterations):
+        process = psutil.Process(os.getpid())
+        _ = model.transcribe_tensor_batches(inputs, sample_rate)
+        memory_info = process.memory_full_info()
+        memory_rss_byte_its.append(memory_info.rss)
+        gc.collect()  # (Just to be sure)
+    memory_rss_byte = float(np.mean(np.array(memory_rss_byte_its)))
+    std_memory_rss_byte = float(np.std(np.array(memory_rss_byte_its)))
 
     ############################
     # Benchmark inference time #
@@ -51,25 +66,33 @@ def benchmark(model: IModel, inputs: list[torch.Tensor], sample_rate: int) -> un
     # Get inference time
     # References:
     # - https://docs.python.org/3/library/timeit.html#timeit.default_timer
-    start = default_timer()
-    _ = model.transcribe_tensor_batches(inputs, sample_rate)
-    end = default_timer()
-    inference_time_ms = (end - start) * 1000
+    inference_time_ms_its: list[float] = []
+    for _ in range(iterations):
+        start = default_timer()
+        _ = model.transcribe_tensor_batches(inputs, sample_rate)
+        end = default_timer()
+        inference_time_ms_its.append((end - start) * 1000)
+    inference_time_ms = float(np.mean(np.array(inference_time_ms_its)))
+    std_inference_time_ms = float(np.std(np.array(inference_time_ms_its)))
 
     ##############################
     # Calculate 1 / RTF per core #
     ##############################
 
-    # Calculate how many seconds of audio could be processed per second per core
-    # (Assumes inference was performed by a single core)
-    # Reference:
-    # https://github.com/snakers4/silero-models/wiki/Performance-Benchmarks#ce-speed-benchmarks
+    # Calculate realtime factor
+    # References:
+    # - https://openvoice-tech.net/index.php/Real-time-factor
+    # - https://github.com/snakers4/silero-models/wiki/Performance-Benchmarks#ce-speed-benchmarks
     audio_duration_ms = get_audio_duration_ms(inputs, sample_rate)
-    per_core_1_over_rtf = audio_duration_ms / inference_time_ms
+    rtf = inference_time_ms / audio_duration_ms
+    rtf_at_1ghz_per_core = rtf * system_cpu_speed_ghz * system_cpu_cores
 
     return {
         'memory_rss_byte': memory_rss_byte,
+        'std_memory_rss_byte': std_memory_rss_byte,
         'inference_time_ms': inference_time_ms,
-        'per_core_1_over_rtf': per_core_1_over_rtf,
+        'std_inference_time_ms': std_inference_time_ms,
+        'rtf': rtf,
+        'rtf_at_1ghz_per_core': rtf_at_1ghz_per_core,
         'audio_duration_ms': audio_duration_ms,
     }
