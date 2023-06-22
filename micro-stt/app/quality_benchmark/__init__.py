@@ -1,17 +1,18 @@
 """Run quality benchmark."""
 
 import csv
-import json
 import inquirer
 import torch
 from app.config import models
-from app.env import BENCHMARK_PATH, CPU_SPEED_GHZ, IN_PATH, TARGET_SAMPLE_RATE
-from app.performance_benchmark.microcontroller_compatibility import micro_controller, micro_controller_compatibility
+from app.env import BENCHMARK_PATH, IN_PATH, TARGET_SAMPLE_RATE
 from app.quality_benchmark.prettify import prettify_results
-from app.performance_benchmark.result_types import full_results, sys_info, torch_model_results, universal_model_results
-from app.performance_benchmark.torch_bench import benchmark as torch_benchmark
-from app.performance_benchmark.universal_bench import benchmark as universal_benchmark
-from app.utils import create_dir_if_not_exists, get_file_paths, get_immidiate_sub_dirs, get_audio_duration_ms_flexible_length
+from app.quality_benchmark.result_types import full_results
+from app.utils import (
+    create_dir_if_not_exists,
+    get_file_paths,
+    get_immidiate_sub_dirs,
+    get_audio_duration_ms_flexible_length
+)
 from app.wav import get_wav_files, load_tensor_from_wav
 from jiwer import wer
 
@@ -55,7 +56,6 @@ def benchmark(
     return model_results
 
 
-
 def main():
     """Run main quality benchmark."""
     input_dirs = get_immidiate_sub_dirs(IN_PATH)
@@ -90,11 +90,10 @@ def main():
     # Benchmark configuration
     input_audio_filepaths = get_wav_files(answers['audio_in_dir'])
     input_audio_filepaths = [path.replace('/', '\\') for path in input_audio_filepaths]  # Update this line
-    #print("Input audio file paths:", input_audio_filepaths)  # Add this line
+    # print("Input audio file paths:", input_audio_filepaths)  # Add this line
     waveform_inputs = [load_tensor_from_wav(path, TARGET_SAMPLE_RATE) for path in input_audio_filepaths]
     if len(waveform_inputs) == 0:
         raise Exception('Input audio directory must contain at least one WAV file')
-
 
     model_names = answers['models']
     benchmark_name = answers['name']
@@ -112,23 +111,21 @@ def main():
             transcription = row[1]  # Assuming the transcriptions are in the third column
             target_transcripts.append(transcription)
 
-
     # Run benchmark for batches and write results to disk
     inputs = [_[0] for _ in waveform_inputs]
-    #print([inp.shape for inp in inputs])  # Add this line to check the shape of the tensors
+    # print([inp.shape for inp in inputs])  # Add this line to check the shape of the tensors
     results = benchmark(
         inputs,
         TARGET_SAMPLE_RATE,
         model_names,
         target_transcripts
-        )
+    )
 
     pretty_results = prettify_results(results)
 
     results_pretty_filepath = f'{results_dirpath}/results.txt'
     with open(results_pretty_filepath, 'w') as f:
         f.write(pretty_results)
-
 
     print("Benchmark completed successfully.")
 
