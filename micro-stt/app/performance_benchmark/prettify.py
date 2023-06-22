@@ -65,6 +65,7 @@ def prettify_results(results: full_results) -> str:
         table_headers = [
             'Micro Controller',
             'CPU Speed [GHz]',
+            'CPU Cores',
             'Memory [MB]',
             'Memory RSS [MB]',
             'Estimated Inference Time [ms]',
@@ -76,6 +77,7 @@ def prettify_results(results: full_results) -> str:
             row = [
                 micro_ctr_compat['micro_controller_info']['name'],
                 micro_ctr_compat['micro_controller_info']['cpu_speed_ghz'],
+                micro_ctr_compat['micro_controller_info']['cpu_cores'],
                 micro_ctr_compat['micro_controller_info']['memory_mb'],
                 byte_to_mb(micro_ctr_compat['memory_rss_byte']),
                 micro_ctr_compat['inference_time_ms'],
