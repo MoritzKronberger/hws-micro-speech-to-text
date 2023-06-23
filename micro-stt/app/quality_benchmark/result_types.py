@@ -5,6 +5,8 @@
 
 from typing import TypedDict
 
+from app.preprocessing import preprocessing_opts
+
 
 class model_results(TypedDict):
     """Model results dict."""
@@ -25,4 +27,5 @@ class full_results(TypedDict):
     """Full results dict."""
     mean_audio_duration_ms: float
     num_samples: int
+    preprocessing: preprocessing_opts | None
     model_results: list[model_results]

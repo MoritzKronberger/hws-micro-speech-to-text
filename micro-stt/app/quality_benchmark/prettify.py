@@ -18,8 +18,45 @@ def prettify_results(results: full_results) -> str:
     )
     pretty_string += benchmark_info_str
 
-    model_results = results["model_results"]
+    # Show preprocessing information
+    preprocessing = results['preprocessing']
+    if preprocessing is not None:
+        preprocessing_header = f'{get_hash_comment("Preprocessing info")}\n'
+        pretty_string += preprocessing_header
+        preprocessing_info_str = ''
+        bandpass = preprocessing['bandpass']
+        noise_reduce = preprocessing['noise_reduce']
+        scale = preprocessing['scale']
+        if bandpass is not None:
+            preprocessing_info_str += (
+                'Bandpass\n'
+                f'High cutoff frequency [Hz]: {bandpass["high_cutoff_freq"]}\n'
+                f'Low cutoff frequency [Hz]: {bandpass["low_cutoff_freq"]}\n'
+                f'Q: {bandpass["Q"]}\n'
+                '\n'
+            )
+        if noise_reduce is not None:
+            preprocessing_info_str += (
+                'Noise reduction\n'
+                f'Stationary: {noise_reduce["stationary"]}\n'
+                f'Noise decrease (proportional): {noise_reduce["prop_decrease"]}\n'
+                f'Time constant [s]: {noise_reduce["time_constant_s"]}\n'  # type: ignore
+                '\n'
+            )
+        if scale is not None:
+            preprocessing_info_str += (
+                'Scale amplitude\n'
+                f'Factor: {scale}\n'
+                '\n'
+            )
+        preprocessing_info_str += '\n'
+        pretty_string += preprocessing_info_str
 
+    # Show benchmark results
+    results_header = f'{get_hash_comment("Results")}\n'
+    pretty_string += results_header
+
+    model_results = results["model_results"]
     table_headers = [
         'Model',
         'Mean WER',
@@ -43,5 +80,6 @@ def prettify_results(results: full_results) -> str:
     model_results_table.add_rows(table_rows)
     model_results_str = model_results_table.get_string()
     pretty_string += model_results_str
+    pretty_string += '\n'
 
     return pretty_string

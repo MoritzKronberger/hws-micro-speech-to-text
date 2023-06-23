@@ -6,8 +6,11 @@ import inquirer
 import torch
 import numpy as np
 import numpy.typing as npt
+from copy import deepcopy
 from app.config import models
 from app.env import IN_PATH, QUALITY_BENCHMARK_PATH, TARGET_SAMPLE_RATE
+from app.preprocessing import preprocess_tensor
+from app.config import preprocessing_options
 from app.quality_benchmark.normalization import normalize_transcriptions
 from app.quality_benchmark.prettify import prettify_results
 from app.quality_benchmark.result_types import full_results, model_results
@@ -119,6 +122,10 @@ def main():
             message='Models',
             choices=models.keys()
         ),
+        inquirer.Confirm(
+            'preprocess',
+            message='Preprocess samples'
+        ),
         inquirer.Text(
             'name',
             message='Benchmark name'
@@ -136,6 +143,7 @@ def main():
 
     model_names = answers['models']
     benchmark_name = answers['name']
+    preprocess = answers['preprocess']
     results_dirpath = f'{QUALITY_BENCHMARK_PATH}/{benchmark_name}'
     create_dir_if_not_exists(results_dirpath)
 
@@ -153,6 +161,9 @@ def main():
 
     # Run benchmark
     inputs = [_[0] for _ in waveform_inputs]
+    if preprocess:
+        print('Preprocessing inputs...')
+        inputs = [preprocess_tensor(input, TARGET_SAMPLE_RATE, preprocessing_options) for input in inputs]
     mdl_results = benchmark(
         inputs,
         TARGET_SAMPLE_RATE,
@@ -168,6 +179,7 @@ def main():
     results: full_results = {
         'num_samples': num_samples,
         'mean_audio_duration_ms': mean_audio_duration_ms,
+        'preprocessing': preprocessing_options if preprocess else None,
         'model_results': mdl_results,
     }
 
@@ -177,7 +189,11 @@ def main():
     tex_results = to_tex_table(results)
     results_json_filepath = f'{results_dirpath}/results.json'
     with open(results_json_filepath, 'w') as f:
-        json.dump(results, f)
+        # Remove Numpy array for JSON serialization
+        serializable_results = deepcopy(results)
+        if serializable_results['preprocessing'] is not None and serializable_results['preprocessing']['noise_reduce'] is not None:
+            serializable_results['preprocessing']['noise_reduce'].pop('y_noise')  # type: ignore
+        json.dump(serializable_results, f)
     results_pretty_filepath = f'{results_dirpath}/results.txt'
     with open(results_pretty_filepath, 'w') as f:
         f.write(pretty_results)
