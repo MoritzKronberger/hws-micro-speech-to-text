@@ -66,7 +66,38 @@ def record_blocking(duration_s: float, sample_rate: int, countdown_s: int | None
         dtype='float32',
         blocking=True
     )
-    print('Recording sucessful')
+    print('Recording successful')
+    return torch.from_numpy(recording.flatten())
+
+
+def playrec_blocking(waveform: torch.Tensor, sample_rate: int, countdown_s: int | None = 5) -> torch.Tensor:
+    """Simultaneously play and record audio.
+
+    Reference:
+    https://python-sounddevice.readthedocs.io/en/0.4.6/usage.html#simultaneous-playback-and-recording
+    """
+    duration_s = waveform.size()[0] / sample_rate 
+    devices = sd.query_devices()
+    print(
+        'Available devices:\n',
+        devices
+    )
+    print(
+        '\n'
+        f'Re-recording audio for {duration_s} seconds'
+        ' in...' if countdown_s is not None else '...'
+    )
+    if countdown_s:
+        print_countdown(countdown_s)
+        print('Started recording...')
+    recording = sd.playrec(
+        waveform.numpy(),
+        sample_rate,
+        channels=CHANNELS,
+        dtype='float32',
+        blocking=True
+    )
+    print('Re-recording successful')
     return torch.from_numpy(recording.flatten())
 
 
