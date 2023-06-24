@@ -34,7 +34,10 @@ BANDPASS_Q = float(__from_dotenv('BANDPASS_Q'))
 # Noise reduction
 NOISE_REDUCE_STATIONARY = __from_dotenv('NOISE_REDUCE_STATIONARY') == 'True'
 NOISE_REDUCE_PROP_DECREASE = float(__from_dotenv('NOISE_REDUCE_PROP_DECREASE'))
-NOISE_FLOOR_DURATION_S = float(__from_dotenv('NOISE_FLOOR_DURATION_S'))
+NOISE_TIME_CONSTANT_S = float(__from_dotenv('NOISE_TIME_CONSTANT_S'))
+NOISE_REDUCE_NFFT = int(__from_dotenv('NOISE_REDUCE_NFFT'))
+NOISE_REDUCE_WIN_LENGTH = int(__from_dotenv('NOISE_REDUCE_WIN_LENGTH'))
+NOISE_REDUCE_N_STD_THRESH_STATIONARY = float(__from_dotenv('NOISE_REDUCE_N_STD_THRESH_STATIONARY'))
 # Scaling
 LEVEL_SCALE = float(__from_dotenv('LEVEL_SCALE'))
 # Overall configuration

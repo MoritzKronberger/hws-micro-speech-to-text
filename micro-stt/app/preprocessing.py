@@ -30,6 +30,9 @@ class base_noise_reduce_opts(TypedDict):
     https://github.com/timsainb/noisereduce#arguments-to-reduce_noise
     """
     prop_decrease: float
+    n_fft: int
+    win_length: int
+    n_std_thresh_stationary: float
 
 
 class stationary_noise_reduce_opts(base_noise_reduce_opts):
@@ -187,16 +190,19 @@ def visualize_preprocessing(
     )
     np_out = out.numpy()
 
-    # Visualize noise reduction (& bandpass)
-    noise_reduce_title = (
-        (f'Noise reduction ({"non-" if not noise_reduce["stationary"] else ""}stationary, {noise_reduce["prop_decrease"]*100}%)' if noise_reduce else '') +
+    # Visualize preprocessing
+    def __format_parameters(params: noise_reduce_opts | bandpass_opts) -> str:
+        return ", ".join([f"{key}: {value}" for key, value in params.items() if type(value) in [str, int, float, bool]])
+
+    preprocessing_title = (
+        (f'Noise reduction ({__format_parameters(noise_reduce)})' if noise_reduce else '') +
         (' & ' if noise_reduce and bandpass else '') +
-        (f'Bandpass filter ({bandpass["low_cutoff_freq"]} Hz - {bandpass["high_cutoff_freq"]} Hz, Q: {bandpass["Q"]})' if bandpass else '') +
+        (f'Bandpass filter ({__format_parameters(bandpass)})' if bandpass else '') +
         (' & ' if (noise_reduce or bandpass) and scale is not None else '') +
         (f'Scaled (factor: {scale})' if scale is not None else '')
     )
 
-    preprocessing_figure = __plot_audio(np_out, sample_rate, noise_reduce_title)
+    preprocessing_figure = __plot_audio(np_out, sample_rate, preprocessing_title)
     preprocessing_figure.savefig(f'{job_dirname}/preprocessing.svg')
 
 
