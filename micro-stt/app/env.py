@@ -23,9 +23,6 @@ TARGET_SAMPLE_RATE = int(__from_dotenv('TARGET_SAMPLE_RATE'))
 BLOCK_SIZE = int(__from_dotenv('BLOCK_SIZE'))
 CHANNELS = int(__from_dotenv('CHANNELS'))
 
-# Model configuration
-LANGUAGE = __from_dotenv('LANGUAGE')
-
 # Audio preprocessing
 # Bandpass filter
 LOW_CUTOFF_FREQ = int(__from_dotenv('LOW_CUTOFF_FREQ'))

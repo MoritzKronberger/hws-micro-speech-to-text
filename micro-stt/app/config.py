@@ -1,7 +1,7 @@
 """Global configuration for Micro STT app."""
 
 from app.models.pocket_sphinx import PocketSphinx
-from app.models.silero import Silero, SileroQuantized
+from app.models.silero import Silero, SileroQuantized, SileroGerman
 from app.models.whisper import (
     WhisperSmall,
     WhisperTiny,
@@ -39,6 +39,7 @@ models = {
     'pocketsphinx': PocketSphinx,
     'silero': Silero,
     'silero-quantized': SileroQuantized,
+    'silero-german': SileroGerman,
     'whisper-tiny': WhisperTiny,
     'whisper-small': WhisperSmall,
     'whisper-tiny-quantized': WhisperTinyQuantized,
