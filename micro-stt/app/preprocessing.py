@@ -30,6 +30,9 @@ class base_noise_reduce_opts(TypedDict):
     https://github.com/timsainb/noisereduce#arguments-to-reduce_noise
     """
     prop_decrease: float
+    n_fft: int
+    win_length: int
+    n_std_thresh_stationary: float
 
 
 class stationary_noise_reduce_opts(base_noise_reduce_opts):

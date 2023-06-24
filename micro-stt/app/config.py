@@ -19,11 +19,20 @@ from app.env import (
     HIGH_CUTOFF_FREQ,
     LEVEL_SCALE,
     LOW_CUTOFF_FREQ,
-    NOISE_FLOOR_DURATION_S,
+    NOISE_REDUCE_N_STD_THRESH_STATIONARY,
+    NOISE_REDUCE_NFFT,
+    NOISE_REDUCE_WIN_LENGTH,
+    NOISE_TIME_CONSTANT_S,
     NOISE_REDUCE_PROP_DECREASE,
     NOISE_REDUCE_STATIONARY
 )
-from app.preprocessing import load_noise_floor, bandpass_opts, noise_reduce_opts, preprocessing_opts
+from app.preprocessing import (
+    load_noise_floor,
+    bandpass_opts,
+    base_noise_reduce_opts,
+    noise_reduce_opts,
+    preprocessing_opts
+)
 
 # Register available transcription models
 models = {
@@ -49,18 +58,24 @@ bandpass_options: bandpass_opts = {
 }
 
 # Configure noise reduction
+base_nr_opts: base_noise_reduce_opts = {
+    'prop_decrease': NOISE_REDUCE_PROP_DECREASE,
+    'n_fft': NOISE_REDUCE_NFFT,
+    'win_length': NOISE_REDUCE_WIN_LENGTH,
+    'n_std_thresh_stationary': NOISE_REDUCE_N_STD_THRESH_STATIONARY,
+}
 if NOISE_REDUCE_STATIONARY:
     noise_reduction_options: noise_reduce_opts = {
+        **base_nr_opts,
         'stationary': True,
-        'prop_decrease': NOISE_REDUCE_PROP_DECREASE,
     }
 else:
     noise_floor = load_noise_floor()
     noise_reduction_options: noise_reduce_opts = {
+        **base_nr_opts,
         'stationary': False,
         'y_noise': noise_floor,
-        'prop_decrease': NOISE_REDUCE_PROP_DECREASE,
-        'time_constant_s': NOISE_FLOOR_DURATION_S,
+        'time_constant_s': NOISE_TIME_CONSTANT_S,
     }
 
 # Configure audio preprocessing
