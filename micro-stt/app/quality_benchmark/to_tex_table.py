@@ -20,8 +20,8 @@ def to_tex_table(results: full_results) -> str:
         r'| >{\raggedleft\arraybackslash}X',
         r'| >{\raggedleft\arraybackslash}X | }',
         r'\hline',
-        r'\textbf{Model} & \textbf{WER} & \textbf{MER}' +
-        r' & \textbf{WIL} & \textbf{WIP} & \textbf{CER} \\',
+        r'\textbf{Model} & $\overline{\textbf{WER}}$ & $\overline{\textbf{MER}}$' +
+        r' & $\overline{\textbf{WIL}}$ & $\overline{\textbf{WIP}}$ & $\overline{\textbf{CER}}$ \\',
         r'\hline',
     ]
 
