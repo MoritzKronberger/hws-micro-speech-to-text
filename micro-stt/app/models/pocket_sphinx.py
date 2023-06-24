@@ -1,6 +1,7 @@
 """PocketSphinx Hidden Markov Model."""
 
 import struct
+import math
 from pocketsphinx import Decoder
 from app.env import TARGET_SAMPLE_RATE
 from app.models import IModel, model_inputs
@@ -36,7 +37,7 @@ class PocketSphinx(IModel):
             # - https://github.com/scipy/scipy/blob/37b650e04f3bf49bc11cfcd18f2848ad4f957a0d/scipy/io/wavfile.py#L699
             # - https://stackoverflow.com/a/43882434/14906871
             floats = input.tolist()
-            ints = [int(sample * 32767) for sample in floats]
+            ints = [max(min(int(sample * 32767), 32767), -32768) for sample in floats]
             int16_bytes = struct.pack('<%dh' % len(ints), *ints)
             # Transcribe utterance
             self.decoder.start_utt()

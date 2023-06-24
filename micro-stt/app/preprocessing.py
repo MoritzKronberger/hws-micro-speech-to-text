@@ -88,7 +88,7 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
         out_np = nr.reduce_noise(
             y=in_np,
             sr=sample_rate,
-            **noise_reduce
+            **noise_reduce  # type: ignore
         )
         out = torch.from_numpy(out_np)
 

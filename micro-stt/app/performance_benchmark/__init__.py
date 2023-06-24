@@ -8,7 +8,7 @@ import platform
 import torch
 from app.config import models
 from app.env import (
-    BENCHMARK_PATH,
+    PERFORMANCE_BENCHMARK_PATH,
     CPU_CORES,
     CPU_SPEED_GHZ,
     ENABLE_TORCH_PROFILER,
@@ -177,7 +177,7 @@ def main():
         micro_controllers: list[micro_controller] = json.load(f)
     benchmark_name = answers['name']
 
-    results_dirpath = f'{BENCHMARK_PATH}/{benchmark_name}'
+    results_dirpath = f'{PERFORMANCE_BENCHMARK_PATH}/{benchmark_name}'
     create_dir_if_not_exists(results_dirpath)
 
     # Run benchmark for batches and write results to disk

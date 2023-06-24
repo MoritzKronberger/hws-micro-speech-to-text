@@ -63,6 +63,6 @@ def byte_to_mb(byte: float) -> float:
 
 def get_audio_duration_ms(inputs: list[torch.Tensor], sample_rate: int) -> float:
     """Calculate audio duration in ms."""
-    waveform = torch.stack(inputs).flatten()
+    waveform = torch.cat(inputs).flatten()
     num_samples = waveform.size(dim=0)
     return (num_samples / sample_rate) * 1000

@@ -21,8 +21,8 @@ def to_tex_table(results: full_results) -> str:
         r'| >{\raggedleft\arraybackslash}X',
         r'| >{\raggedleft\arraybackslash}X | }',
         r'\hline',
-        r'\textbf{Model} & \textbf{Memory usage} & \textbf{Inference time}' +
-        r' & \textbf{RTF} & \textbf{RTF@1GHz/Core} \\',
+        r'\textbf{Model} & $\overline{\textbf{Memory usage}}$ & $\overline{\textbf{Inference time}}$' +
+        r' & $\overline{\textbf{RTF}}$ & $\overline{\textbf{RTF@1GHz/Core}}$ \\',
         r'\hline',
     ]
     microctr_compat_table_str = [
