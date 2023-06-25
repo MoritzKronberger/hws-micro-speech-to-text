@@ -20,13 +20,17 @@ class __GenericSilero(IModel):
     def __init__(self, quantized: bool = False, language: Literal['en', 'de'] = 'en') -> None:
         """Create new Silero model.
 
-        Model is optionally quantized.
+        For non german versions quantized model can be used.
 
         References:
         - https://pypi.org/project/silero
         - https://pytorch.org/hub/snakers4_silero-models_stt
-        - https://github.com/MiscellaneousStuff/openai-whisper-cpu/blob/main/script/custom_whisper.py
         """
+        # Quantized model is not downloadable for de versions
+        # Reference:
+        # https://github.com/snakers4/silero-models/blob/21ed251aa28d023db96a8fdaaf5b22877bc8c0af/models.yml#L95
+        if quantized and language == 'de':
+            raise Exception('Quantized model is only available for english version')
         self.name = f'Silero{" (quantized)" if quantized else ""}{" GERMAN " if language=="de" else ""}'
         self.device = torch.device('cpu')
         self.model, self.decoder, self.utils = silero_stt(
@@ -34,20 +38,17 @@ class __GenericSilero(IModel):
             # since latest version of german model is currently pinned to deprecated v1.
             # Reference:
             # https://github.com/snakers4/silero-models/blob/21ed251aa28d023db96a8fdaaf5b22877bc8c0af/models.yml#L83
-            version='v4' if language == 'de' else 'lastest',
+            version='v4' if language == 'de' else 'latest',
             # Needs different jit model name for german model v4
             # Reference:
             # https://github.com/snakers4/silero-models/blob/21ed251aa28d023db96a8fdaaf5b22877bc8c0af/models.yml#L100
-            jit_model='jit_large' if language == 'de' else 'latest',
+            jit_model='jit_large' if language == 'de' else (
+                # Download quantized model if specified
+                'jit' if not quantized else 'jit_q'
+            ),
             language=language,
             device=self.device
         )
-        if quantized:
-            self.model = torch.quantization.quantize_dynamic(
-                self.model,
-                {torch.nn.Linear},
-                dtype=torch.qint8
-            )
 
     def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
