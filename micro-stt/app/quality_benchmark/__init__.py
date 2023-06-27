@@ -84,7 +84,7 @@ def benchmark(
         mean_cer, std_cer = __mean_std(character_error_rate)
 
         results.append({
-            'model_name': model_name,
+            'model_name': model.name,
             'mean_wer': mean_wer,
             'std_wer': std_wer,
             'mean_mer': mean_mer,
