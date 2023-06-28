@@ -13,14 +13,14 @@ from app import quality_benchmark
 from app.utils import get_hash_comment
 
 actions = {
-    'Record audio (save as wav)': recording,
-    'Re-record audio files (from wav)': re_recording,
-    'Calibrate noise floor (from wav)': noise_floor_calibration,
-    'Visualize preprocessing (from wav)': preprocessing_visualization,
-    'Transcribe recording (from wav)': file_transcription,
-    'Start live transcription': live_transcription,
-    'Run performance benchmark': performance_benchmark,
-    'Run quality benchmark':  quality_benchmark
+    'Record audio (save as WAV)': recording,
+    'Re-record audio files (from WAV)': re_recording,
+    'Calibrate noise floor (from WAV)': noise_floor_calibration,
+    'Visualize preprocessing (from WAV)': preprocessing_visualization,
+    'Transcribe recording (from WAV)': file_transcription,
+    'Live transcription (audio stream)': live_transcription,
+    'Performance benchmark': performance_benchmark,
+    'Quality benchmark':  quality_benchmark
 }
 
 
