@@ -14,7 +14,7 @@ import sounddevice as sd
 from typing import Callable
 from queue import Queue, Empty
 from app.models import IModel
-from app.preprocessing import preprocess_tensor
+from app.preprocessing import load_noise_floor, preprocess_tensor
 from app.config import models, preprocessing_options
 from app.env import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE
 
@@ -70,6 +70,16 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
     # Reference: https://superfastpython.com/stop-daemon-thread
     stop = asyncio.Event()
 
+    # Carry over last VAD
+    carry: torch.Tensor | None = None
+
+    # Determine mean amplitude of silence
+    try:
+        noise_floor = torch.from_numpy(load_noise_floor())
+        silence_threshold = torch.mean(torch.abs(noise_floor)).item()
+    except Exception:
+        silence_threshold = 0.0005
+
     while not stop.is_set():
         try:
             # Get queue data
@@ -81,8 +91,26 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
                     new_freq=TARGET_SAMPLE_RATE
                 )
                 waveform_tensor = resample(waveform_tensor)
+            # Detect voice activity
+            silence_mask = torch.where(torch.abs(waveform_tensor) > silence_threshold, 1, 0)
+            # Count how many samples of silence and speech follow each other
+            _, consecuitve_unique_counts = torch.unique_consecutive(silence_mask, return_counts=True)
+            # Turn the sample count into split-indices by adding them up
+            split_indices = torch.cumsum(consecuitve_unique_counts, dim=0)
+            vad_split = list(torch.tensor_split(waveform_tensor, split_indices))
+            # Carry over exist from last round,
+            # add carry over to first batch
+            if carry is not None:
+                vad_split[0] = torch.cat((vad_split[0], carry))
+            # If more than one batch exist,
+            # move last batch to carry over
+            if len(vad_split) > 1:
+                carry = vad_split.pop()
             # Transcribe audio
-            transcription = model.transcribe_tensor_batches([waveform_tensor], TARGET_SAMPLE_RATE)
+            transcription = model.transcribe_tensor_batches(
+                [torch.cat(vad_split).flatten()],  # Merging batches improves performance
+                TARGET_SAMPLE_RATE
+            )
             print(' '.join(transcription))
         except Empty:
             continue
