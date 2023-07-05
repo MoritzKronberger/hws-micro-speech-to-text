@@ -76,7 +76,7 @@ def playrec_blocking(waveform: torch.Tensor, sample_rate: int, countdown_s: int 
     Reference:
     https://python-sounddevice.readthedocs.io/en/0.4.6/usage.html#simultaneous-playback-and-recording
     """
-    duration_s = waveform.size()[0] / sample_rate 
+    duration_s = waveform.size()[0] / sample_rate
     devices = sd.query_devices()
     print(
         'Available devices:\n',

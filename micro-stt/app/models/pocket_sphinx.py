@@ -1,7 +1,6 @@
 """PocketSphinx Hidden Markov Model."""
 
 import struct
-import math
 from pocketsphinx import Decoder
 from app.env import TARGET_SAMPLE_RATE
 from app.models import IModel, model_inputs

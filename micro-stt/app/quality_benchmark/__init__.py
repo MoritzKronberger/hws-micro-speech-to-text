@@ -191,7 +191,11 @@ def main():
     with open(results_json_filepath, 'w') as f:
         # Remove Numpy array for JSON serialization
         serializable_results = deepcopy(results)
-        if serializable_results['preprocessing'] is not None and serializable_results['preprocessing']['noise_reduce'] is not None:
+        if (
+                serializable_results['preprocessing'] is not None
+                and
+                serializable_results['preprocessing']['noise_reduce'] is not None
+        ):
             serializable_results['preprocessing']['noise_reduce'].pop('y_noise')  # type: ignore
         json.dump(serializable_results, f)
     results_pretty_filepath = f'{results_dirpath}/results.txt'
