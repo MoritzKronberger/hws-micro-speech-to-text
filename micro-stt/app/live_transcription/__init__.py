@@ -98,12 +98,10 @@ def transcription_worker(create_model: Callable[[], IModel]) -> None:
             # Turn the sample count into split-indices by adding them up
             split_indices = torch.cumsum(consecuitve_unique_counts, dim=0)
             vad_split = list(torch.tensor_split(waveform_tensor, split_indices))
-            # Carry over exist from last round,
-            # add carry over to first batch
+            # Add carry over to first batch
             if carry is not None:
                 vad_split[0] = torch.cat((vad_split[0], carry))
-            # If more than one batch exist,
-            # move last batch to carry over
+            # If more than one batch exist, move last batch to carry over
             if len(vad_split) > 1:
                 carry = vad_split.pop()
             # Transcribe audio
