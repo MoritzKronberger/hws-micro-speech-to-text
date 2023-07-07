@@ -6,7 +6,7 @@ from app.wav import get_wav_files, load_tensor_from_wav, playrec_blocking, save_
 from app.env import IN_PATH, RECORDINGS_PATH, TARGET_SAMPLE_RATE
 
 
-def main():
+def main() -> None:
     """Re-record batch of wav files."""
     input_dirs = get_immidiate_sub_dirs(IN_PATH)
 

@@ -29,7 +29,9 @@ class __GenericWhisper(IModel):
         self.name = f'Whisper ({size}{", quantized" if quantized else ""})'
         self.model = whisper.load_model(size)
         if quantized:
-            self.model = torch.quantization.quantize_dynamic(self.model, {torch.nn.Linear}, dtype=torch.qint8)
+            self.model = torch.quantization.quantize_dynamic(  # type:ignore
+                self.model, {torch.nn.Linear}, dtype=torch.qint8
+            )
 
     def transcribe_tensor_batches(self, inputs: model_inputs, sample_rate: int) -> list[str]:
         """Transcribe input batches.
@@ -41,7 +43,7 @@ class __GenericWhisper(IModel):
         outputs: list[str] = []
         for input in inputs:
             output = whisper.transcribe(self.model, input)
-            outputs.append(output['text'])  # type: ignore
+            outputs.append(output['text'])
         return outputs
 
 
@@ -109,7 +111,7 @@ class __GenericWhisperCPP(IModel):
         # Convert to Numpy array
         np_inputs = flat_inputs.numpy()
         segments = self.model.transcribe(np_inputs)
-        outputs = self.model.extract_text(segments)
+        outputs: list[str] = self.model.extract_text(segments)
         return outputs
 
 

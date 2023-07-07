@@ -6,7 +6,7 @@ from app.wav import record_blocking, save_tensor_as_wav
 from app.env import DEVICE_SAMPLE_RATE, RECORDINGS_PATH
 
 
-def main():
+def main() -> None:
     """Run main wav recording function."""
     # Prompt user for recording duration and filename
     prompts = [

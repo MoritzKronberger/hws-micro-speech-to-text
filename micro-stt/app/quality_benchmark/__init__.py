@@ -100,7 +100,7 @@ def benchmark(
     return results
 
 
-def main():
+def main() -> None:
     """Run main quality benchmark."""
     input_dirs = get_immidiate_sub_dirs(IN_PATH)
     transcription_filepaths = get_file_paths(IN_PATH, '.csv')
