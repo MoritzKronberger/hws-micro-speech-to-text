@@ -2,5 +2,5 @@
 
 Kürprojekt Hardwaresysteme (Prof. Kiefer) MIN SoSe 2023
 
-- [Benchmark](./benchmark/benchmark.ipynb)
 - [Micro-STT Implementierung](./micro-stt/README.md)
+- [(Performance-Benchmark-Prototyp)](./performance_benchmark_prototype/benchmark.ipynb)
