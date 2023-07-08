@@ -125,7 +125,7 @@ def benchmark(
     }
 
 
-def main():
+def main() -> None:
     """Run main performance benchmark."""
     input_dirs = get_immidiate_sub_dirs(IN_PATH)
     micro_controller_filepaths = get_file_paths(IN_PATH, '.json')

@@ -20,7 +20,7 @@ def transcribe_file(filepath: str, model: IModel, preprocess: bool) -> None:
     print(f'\n{" ".join(transcription)}\n')
 
 
-def main():
+def main() -> None:
     """Run main file transcription."""
     # Prompt user for recording to transcribe
     recordings = get_wav_files(RECORDINGS_PATH)

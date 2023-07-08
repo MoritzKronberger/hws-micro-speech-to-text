@@ -65,14 +65,16 @@ base_nr_opts: base_noise_reduce_opts = {
     'win_length': NOISE_REDUCE_WIN_LENGTH,
     'n_std_thresh_stationary': NOISE_REDUCE_N_STD_THRESH_STATIONARY,
 }
+# (Use lots of type-ignores, since mypy has trouble when destructuring typed dicts
+# Reference: https://github.com/python/mypy/issues/4122#issuecomment-336924377)
 if NOISE_REDUCE_STATIONARY:
-    noise_reduction_options: noise_reduce_opts = {
-        **base_nr_opts,
+    noise_reduction_options: noise_reduce_opts = {  # type: ignore
+        **base_nr_opts,  # type: ignore
         'stationary': True,
     }
 else:
     noise_floor = load_noise_floor()
-    noise_reduction_options: noise_reduce_opts = {
+    noise_reduction_options: noise_reduce_opts = {  # type: ignore
         **base_nr_opts,
         'stationary': False,
         'y_noise': noise_floor,

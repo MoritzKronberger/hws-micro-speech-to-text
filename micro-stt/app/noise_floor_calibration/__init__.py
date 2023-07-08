@@ -6,7 +6,7 @@ from app.env import RECORDINGS_PATH
 from app.wav import get_wav_files, load_tensor_from_wav
 
 
-def main():
+def main() -> None:
     """Run main noise floor calibration."""
     # Prompt user for recording to use as noise floor
     recordings = get_wav_files(RECORDINGS_PATH)

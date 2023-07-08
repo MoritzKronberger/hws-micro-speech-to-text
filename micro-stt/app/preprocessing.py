@@ -91,7 +91,7 @@ def preprocess_tensor(input: torch.Tensor, sample_rate: int, opts: preprocessing
         out_np = nr.reduce_noise(
             y=in_np,
             sr=sample_rate,
-            **noise_reduce  # type: ignore
+            **noise_reduce
         )
         out = torch.from_numpy(out_np)
 
@@ -215,4 +215,5 @@ def save_noise_floor(input: NP_BUFFER, temp_dir: str = 'tmp', filename: str = 'n
 
 def load_noise_floor(temp_dir: str = 'tmp', filename: str = 'noise-floor') -> NP_BUFFER:
     """Load Numpy buffer of noise floor from disk."""
-    return np.load(f'{temp_dir}/{filename}.npy')
+    noise_floor: NP_BUFFER = np.load(f'{temp_dir}/{filename}.npy')  # assignment to typed var: hack to fix mypy-error
+    return noise_floor

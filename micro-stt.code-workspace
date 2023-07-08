@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "path": "benchmark"
+      "path": "performance_benchmark_prototype"
     },
     {
       "path": "micro-stt"

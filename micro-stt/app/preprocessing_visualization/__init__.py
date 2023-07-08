@@ -7,7 +7,7 @@ from app.config import preprocessing_options
 from app.wav import get_wav_files, load_tensor_from_wav, save_tensor_as_wav
 
 
-def main():
+def main() -> None:
     """Run main processing visualization."""
     # Prompt user for recording to use as noise floor
     recordings = get_wav_files(RECORDINGS_PATH)

@@ -19,7 +19,7 @@ from app.config import models, preprocessing_options
 from app.env import BLOCK_SIZE, CHANNELS, NP_BUFFER, DEVICE_SAMPLE_RATE, TARGET_SAMPLE_RATE
 
 # Store audio buffers in queue
-buffer_queue = Queue()
+buffer_queue: Queue[torch.Tensor] = Queue()
 
 # Transcription settings
 preprocess = True
@@ -32,7 +32,7 @@ def __create_model() -> IModel:
     return models[model_name]()
 
 
-def callback(in_data: NP_BUFFER, out_data: NP_BUFFER, _frame: int, _time: int, status: str):
+def callback(in_data: NP_BUFFER, out_data: NP_BUFFER, _frame: int, _time: int, status: str) -> None:
     """Add audio buffer to buffer queue."""
     # Check for errors
     if status:

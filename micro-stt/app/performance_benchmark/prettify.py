@@ -2,6 +2,7 @@
 
 from prettytable import PrettyTable
 from app.performance_benchmark.result_types import full_results
+from app.performance_benchmark.torch_bench import torch_bench_result
 from app.utils import byte_to_mb, get_hash_comment
 
 
@@ -38,7 +39,8 @@ def prettify_results(results: full_results) -> str:
         pretty_string += model_header
         # Format model results
         result = model_result['results']
-        torch_result = model_result.get('torch_results')
+        # Use type-ignore, because mypy can't deal with nested `torch_results`-dict
+        torch_result: torch_bench_result | None = model_result.get('torch_results')  # type: ignore
         result_str = (
             'Universal benchmark results:\n'
             f'Memory usage RSS [MB]: {byte_to_mb(result["memory_rss_byte"])}\n'
@@ -72,7 +74,8 @@ def prettify_results(results: full_results) -> str:
             'Estimated RTF',
             'Compatible'
         ]
-        table_rows: list[list[str | float | bool]] = []
+        # Add object as type, because mypy can't deal with nested `micro_controller_info`-dict
+        table_rows: list[list[str | float | bool | object]] = []
         for micro_ctr_compat in micro_controller_compats:
             row = [
                 micro_ctr_compat['micro_controller_info']['name'],
