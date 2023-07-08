@@ -134,7 +134,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-## Create .env file
+### Create .env file
 
 Create the .env scaffold using
 
@@ -144,7 +144,7 @@ bash init_dotenv.sh
 
 and enter your configuration.
 
-## Run Application
+### Run Application
 
 Start CLI application:
 
@@ -152,7 +152,7 @@ Start CLI application:
 python3 -m app
 ```
 
-## Run Typechecks and Linter
+### Run Typechecks and Linter
 
 Run mypy for typechecks:
 
@@ -165,3 +165,62 @@ Run flake8 for linting:
 ```bash
 flake8
 ```
+
+## Actions
+
+Overview of the applications actions, callable via the CLI interface
+
+CLI options are automatically prompted for via inquirer, not passed as flags
+
+### Record audio (save as WAV)
+
+- CLI options: `duration`, `filename`
+- Record audio using settings defined in `.env`
+- Output recording as WAV-file in `./out/recordings`
+
+### Re-record audio files (from WAV)
+
+- CLI options: `input_directory`, `output_directory_name`
+- Select folder containing WAV-files form `./in`
+- Simultaneously play and record audio files using settings defined in `.env`
+- Output recording as WAV-file in subdirectory of `./out/recordings`
+
+### Calibrate noise floor (from WAV)
+
+- CLI options: `recording`
+- Select WAV-file from `./out/recordings`
+- Set audio as noise floor for entire application
+
+### Visualize preprocessing (from WAV)
+
+- CLI options: `recording`, `save_preprocessed_recording`, `output_directory_name`
+- Select WAV-file from `./out/recordings`
+- Visualize preprocessing using settings defined in `.env`
+- Output visualization in `./out/viz`
+- Output preprocessed recording in `./out/recordings` (optional)
+
+### Transcribe recording (from WAV)
+
+- CLI options: `recording`, `model`, `use_preprocessing`
+- Select WAV-file from `./out/recordings`
+- Print transcription to stdout
+
+### Live transcription (audio stream)
+
+- CLI options: `model`, `use_preprocessing`, `enable_audio_passthrough`
+- Start audio stream using settings defined in `.env`
+- Print transcription to stdout
+
+### Performance benchmark
+
+- CLI options: `input_directory`, `models`, `micro_controller_config`, `benchmark_name`, `iterations`
+- Select folder containing WAV-files form `./in`
+- Select JSON micro controller definition from `./in`
+- Output results in subdirectory of `./out/benchmarks/performance`
+
+### Quality benchmark
+
+- CLI options: `input_directory`, `target_transcriptions`, `models`, `use_preprocessing`, `benchmark_name`
+- Select folder containing WAV-files form `./in`
+- Select CSV target transcriptions from `./in`
+- Output results in subdirectory of `./out/benchmarks/quality`
