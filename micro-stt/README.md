@@ -1,4 +1,4 @@
-# Micro Text-To-Speech – Live Transcription
+# Micro-Speech-To-Text (Micro-STT)
 
 Includes setup for strict typechecking with [mypy](https://mypy.readthedocs.io/en/stable/index.html) and linting with [flake8](https://flake8.pycqa.org/en/latest/index.html) + settings for the [VSCode Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python).
 
@@ -168,7 +168,7 @@ flake8
 
 ## Actions
 
-Overview of the applications actions, callable via the CLI interface
+Overview of the application's actions, callable via the CLI interface
 
 CLI options are automatically prompted for via inquirer, not passed as flags
 
