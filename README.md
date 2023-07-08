@@ -1,4 +1,4 @@
-# HWS Micro Speech-to-Text (Micro-STT)
+# HWS Micro-Speech-to-Text (Micro-STT)
 
 Kürprojekt Hardwaresysteme (Prof. Kiefer) MIN SoSe 2023
 
